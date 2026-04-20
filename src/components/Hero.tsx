@@ -39,21 +39,21 @@ export const Hero = () => {
           <div className="relative w-full max-w-[300px] h-full flex flex-col items-center justify-center animate-float">
             
             <img 
-              src="/images/alphonso.png" 
+              src="/images/alphonso_mango_1776689722945.png" 
               alt="Premium Alphonso"
               className="absolute top-[10%] w-[220px] md:w-[280px] drop-shadow-2xl z-10 transition-transform duration-700 hover:scale-110 hover:rotate-6 cursor-pointer"
               style={{ filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.25))' }}
             />
             
             <img 
-              src="/images/kesar.png" 
+              src="/images/kesar_mango_1776689839624.png" 
               alt="Premium Kesar"
               className="absolute top-[35%] w-[250px] md:w-[320px] drop-shadow-2xl z-20 transition-transform duration-700 hover:scale-110 hover:-rotate-3 cursor-pointer"
               style={{ filter: 'drop-shadow(0 30px 25px rgba(0,0,0,0.35))' }}
             />
             
             <img 
-              src="/images/dasheri.png" 
+              src="/images/dasheri_mango_1776689890684.png" 
               alt="Premium Dasheri"
               className="absolute top-[60%] w-[240px] md:w-[300px] drop-shadow-2xl z-30 transition-transform duration-700 hover:scale-110 hover:rotate-3 cursor-pointer"
               style={{ filter: 'drop-shadow(0 40px 30px rgba(0,0,0,0.4))' }}
