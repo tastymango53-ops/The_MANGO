@@ -23,9 +23,9 @@ export const ProductGrid = () => {
           <article 
             key={product.id} 
             onClick={() => setSelectedProduct(product)}
-            className="group flex flex-col bg-white/70 backdrop-blur-lg rounded-[41%_59%_41%_59%_/_51%_60%_40%_49%] shadow-xl border-4 border-white/50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer p-8 pb-12"
+            className="group flex flex-col bg-white/70 backdrop-blur-lg rounded-[2rem] shadow-lg border border-white/50 hover:bg-mango/20 hover:backdrop-blur-xl hover:shadow-[0_8px_30px_rgb(255,183,3,0.3)] hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 cursor-pointer p-6 sm:p-8"
           >
-            <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-mango/20 to-mango-light/5 rounded-full mb-6 flex justify-center items-center group-hover:bg-mango/30 transition-colors">
+            <div className="relative aspect-square overflow-hidden bg-white/40 rounded-3xl mb-6 flex justify-center items-center group-hover:bg-transparent transition-colors">
               <img
                 src={product.image}
                 alt={`Premium ${product.name} mango`}

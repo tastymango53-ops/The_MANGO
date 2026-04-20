@@ -59,7 +59,7 @@ export const CartDrawer = () => {
       >
         <div className="flex items-center justify-between p-6 border-b border-dark/10 bg-white">
           <h2 id="cart-title" className="text-2xl font-bold text-dark flex items-center gap-2">
-            <ShoppingBag className="w-6 h-6 text-orange" />
+            <ShoppingBag className="w-6 h-6 text-mango-dark" />
             {isCheckout ? "Checkout" : "Your Cart"}
           </h2>
           <button
@@ -79,7 +79,7 @@ export const CartDrawer = () => {
                 <p className="text-xl text-dark/60 font-medium">Your cart is empty.</p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-4 px-6 py-3 bg-white border-2 border-orange text-orange font-bold rounded-full hover:bg-orange hover:text-white transition-colors"
+                  className="mt-4 px-6 py-3 bg-white border-2 border-mango text-mango-dark font-bold rounded-full hover:bg-mango hover:text-dark transition-colors"
                 >
                   Start Shopping
                 </button>
@@ -92,7 +92,7 @@ export const CartDrawer = () => {
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <h3 className="font-bold text-lg text-dark">{item.name}</h3>
-                        <p className="text-orange font-semibold">₹{item.price}</p>
+                        <p className="text-leaf-dark font-semibold">₹{item.price}</p>
                       </div>
                       
                       <div className="flex items-center justify-between mt-4">
@@ -139,7 +139,7 @@ export const CartDrawer = () => {
             </div>
             <button
               onClick={() => setIsCheckout(true)}
-              className="w-full py-4 bg-orange text-white font-bold rounded-xl text-lg shadow-lg hover:bg-orange/90 transition-transform active:scale-95 touch-manipulation focus-visible:ring-2"
+              className="w-full py-4 bg-mango text-dark font-black rounded-xl text-lg shadow-[0_4px_14px_0_rgb(255,183,3,0.39)] hover:shadow-lg hover:bg-mango-light transition-all active:scale-95 touch-manipulation focus-visible:ring-2"
             >
               Proceed to Checkout
             </button>

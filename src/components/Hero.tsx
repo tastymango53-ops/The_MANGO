@@ -3,18 +3,7 @@
 export const Hero = () => {
   return (
     <section className="relative w-full h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Background Image (We make it lighter/transparent to blend with our falling leaves) */}
-      <div className="absolute inset-0 w-full h-full mix-blend-overlay opacity-30">
-        <img
-          src="/images/hero.png"
-          alt="Fresh juicy yellow mangoes"
-          width="1920"
-          height="1080"
-          // @ts-ignore custom attribute
-          fetchpriority="high"
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* Background Image Removed to let FallingLeaves shine without broken image links */}
 
       {/* Content */}
       <div className="relative z-10 px-6 sm:px-12 md:px-24 text-center max-w-4xl mx-auto flex flex-col items-center">
