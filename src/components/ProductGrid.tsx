@@ -10,7 +10,7 @@ export const ProductGrid = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   return (
-    <section id="shop" className="py-24 px-6 md:px-12 max-w-7xl mx-auto drop-shadow-xl">
+    <section id="shop" className="py-24 px-6 md:px-12 max-w-7xl mx-auto relative z-10">
       <div className="mb-16 text-center">
         <h2 className="text-4xl md:text-5xl font-black mb-4 text-mango-dark">Our Premium Selection</h2>
         <p className="text-lg text-dark/70 text-balance max-w-2xl mx-auto font-medium">
