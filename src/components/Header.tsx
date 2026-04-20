@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ShoppingBag, Settings } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
 
-interface HeaderProps {
-  onOpenAdmin?: () => void;
-}
-
-export const Header = ({ onOpenAdmin }: HeaderProps) => {
+export const Header = () => {
   const { cart, setIsCartOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
 
@@ -31,18 +27,6 @@ export const Header = ({ onOpenAdmin }: HeaderProps) => {
           <div className={clsx("text-2xl font-black tracking-tight", scrolled ? "text-mango-dark" : "text-dark")}>
             MangoWala
           </div>
-          {onOpenAdmin && (
-            <button
-              onClick={onOpenAdmin}
-              className={clsx(
-                "flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-colors text-sm",
-                scrolled ? "bg-mango/10 text-mango-dark hover:bg-mango/20" : "bg-white/50 backdrop-blur-md text-dark hover:bg-white/80 shadow-sm"
-              )}
-            >
-              <Settings className="w-4 h-4" />
-              Control Panel
-            </button>
-          )}
         </div>
 
         <button

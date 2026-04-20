@@ -47,13 +47,15 @@ export const FallingLeaves = () => {
             opacity: leaf.opacity,
             width: `${leaf.size}px`,
             height: `${leaf.size}px`,
+            willChange: 'transform',
           }}
         >
           <div 
             className="w-full h-full animate-sway"
             style={{
               animationDuration: `${3 + Math.random() * 4}s`,
-              transform: `rotate(${leaf.rotation}deg)`
+              transform: `rotate(${leaf.rotation}deg) translateZ(0)`,
+              willChange: 'transform',
             }}
           >
             {LEAF_SVG}
