@@ -42,9 +42,9 @@ export const Hero = () => {
               USER TWEAK: Replace this with your exact image path once uploaded.
             */}
             <img 
-              src="/images/stacked_mangoes.png" 
+              src="/images/mango_hero_1776689646676.png" 
               alt="Stacked Premium Mangoes"
-              className="w-auto h-[90%] object-contain drop-shadow-2xl"
+              className="w-auto h-[90%] object-contain drop-shadow-2xl mix-blend-multiply"
               style={{ filter: 'drop-shadow(0 30px 40px rgba(255, 107, 0, 0.3))' }}
             />
           </div>
