@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useCart } from '../CartContext';
 import { useProducts } from '../context/ProductContext';
-import { ShoppingCart } from 'lucide-react';
 import { QuantityModal } from './QuantityModal';
 import type { Product } from '../CartContext';
 
