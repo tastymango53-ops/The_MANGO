@@ -30,22 +30,24 @@ export const Hero = () => {
         <div className="relative flex flex-col items-center justify-center order-1 lg:order-2 h-[600px] lg:h-[800px] w-full">
           {/* Intense Warm Glow */}
           <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[600px] md:h-[600px] blur-[100px] rounded-full mix-blend-multiply opacity-80"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[600px] md:h-[600px] blur-[120px] rounded-full opacity-60 pointer-events-none"
             style={{
-              background: 'radial-gradient(circle, #FFD700 0%, #FF6B00 40%, transparent 70%)'
+              background: 'radial-gradient(circle, #FFD700 0%, #FF6B00 50%, transparent 80%)'
             }}
           />
           
           {/* Single Stacked Mango Image */}
-          <div className="relative w-full h-full flex items-center justify-center animate-float z-10">
+          <div className="relative w-full h-full flex items-center justify-center animate-float z-10 transition-transform duration-700">
             {/* 
               USER TWEAK: Replace this with your exact image path once uploaded.
             */}
             <img 
-              src="/images/stacked_mangoes.png" 
+              src="/images/stacked_mangoes_nobg.png" 
               alt="Stacked Premium Mangoes"
-              className="w-auto h-[90%] object-contain drop-shadow-2xl mix-blend-multiply"
-              style={{ filter: 'drop-shadow(0 30px 40px rgba(255, 107, 0, 0.3))' }}
+              className="w-auto h-[90%] md:h-full max-h-[700px] object-contain"
+              style={{ 
+                filter: 'drop-shadow(0 40px 80px rgba(180, 80, 0, 0.4)) drop-shadow(0 0 100px rgba(255, 180, 0, 0.15))' 
+              }}
             />
           </div>
         </div>

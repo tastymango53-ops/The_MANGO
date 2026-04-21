@@ -38,8 +38,8 @@ export default {
           '50%': { transform: 'rotate(5deg)' },
         },
         float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-30px) rotate(3deg)' },
         },
         fall: {
           '0%': { transform: 'translateY(-100px) rotate(0deg)' },
