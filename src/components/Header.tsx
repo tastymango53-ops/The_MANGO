@@ -22,9 +22,9 @@ export const Header = () => {
         scrolled ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-mango/20 py-4" : "bg-transparent py-6"
       )}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div className={clsx("text-2xl font-black tracking-tight", scrolled ? "text-mango-dark" : "text-dark")}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className={clsx("text-xl sm:text-2xl font-black tracking-tight", scrolled ? "text-mango-dark" : "text-dark")}>
             MangoWala
           </div>
         </div>

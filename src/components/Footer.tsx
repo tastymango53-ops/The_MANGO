@@ -6,14 +6,14 @@ interface FooterProps {
 
 export const Footer = ({ onOpenAdmin }: FooterProps) => {
   return (
-    <footer className="bg-dark text-offwhite py-12 px-6 md:px-12 border-t border-dark/10 relative">
+    <footer className="bg-dark text-offwhite py-12 px-4 sm:px-6 md:px-12 border-t border-dark/10 relative">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
         <div className="text-center md:text-left">
           <h2 className="text-2xl font-black text-mango mb-1">MangoWala</h2>
           <p className="text-offwhite/60">Premium D2C Mango Store.</p>
         </div>
 
-        <nav className="flex items-center gap-8 text-offwhite/80 font-medium" aria-label="Footer navigation">
+        <nav className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-offwhite/80 font-medium" aria-label="Footer navigation">
           <a href="#shop" className="hover:text-mango transition-colors focus-visible:ring-2">Shop</a>
           <a href="#about" className="hover:text-mango transition-colors focus-visible:ring-2">Our Story</a>
           <a href="#contact" className="hover:text-mango transition-colors focus-visible:ring-2">Contact</a>
@@ -49,14 +49,14 @@ export const Footer = ({ onOpenAdmin }: FooterProps) => {
           </a>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-offwhite/10 flex justify-center items-center relative text-offwhite/50 text-sm">
+      <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-offwhite/10 flex flex-col sm:flex-row justify-center items-center gap-4 relative text-offwhite/50 text-sm text-center">
         <span>&copy; {new Date().getFullYear()} MangoWala. All rights reserved.</span>
         
         {/* Hidden Mango Control Panel trigger */}
         {onOpenAdmin && (
           <button 
             onClick={onOpenAdmin}
-            className="absolute right-0 opacity-20 hover:opacity-100 transition-opacity p-2 text-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-mango-light rounded-full"
+            className="sm:absolute right-0 relative sm:mt-0 mt-4 opacity-20 hover:opacity-100 transition-opacity p-2 text-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-mango-light rounded-full"
             aria-label="Admin Access"
             title="Secret Control Panel"
           >

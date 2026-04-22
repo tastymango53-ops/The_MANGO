@@ -3,7 +3,7 @@ export const Hero = () => {
     <section className="relative w-full min-h-[90vh] py-24 flex items-center justify-center overflow-hidden bg-[#FFF8F0]">
       
       {/* Container */}
-      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 sm:px-12 grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 items-center">
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-8 items-center">
         
         {/* LEFT COLUMN - Features (01, 03) */}
         <div className="flex flex-col gap-8 lg:gap-14 order-2 lg:order-1 mt-12 lg:mt-0 lg:pr-12">
@@ -30,7 +30,7 @@ export const Hero = () => {
         <div className="relative flex flex-col items-center justify-center order-1 lg:order-2 h-[600px] lg:h-[800px] w-full">
           {/* Intense Warm Glow */}
           <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[600px] md:h-[600px] blur-[120px] rounded-full opacity-60 pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] md:w-[600px] md:h-[600px] blur-[80px] md:blur-[120px] rounded-full opacity-60 pointer-events-none"
             style={{
               background: 'radial-gradient(circle, #FFD700 0%, #FF6B00 50%, transparent 80%)'
             }}
@@ -55,8 +55,8 @@ export const Hero = () => {
         {/* RIGHT COLUMN - Headline & Features (02, 04) */}
         <div className="flex flex-col gap-8 lg:gap-14 order-3 lg:order-3 mt-12 lg:mt-0 lg:pl-12">
           
-          <div className="text-left mb-4">
-            <h1 className="text-5xl md:text-6xl lg:text-[5rem] font-bold mb-4 tracking-tight text-[#1a1525] leading-[1.1]">
+          <div className="text-left mb-4 px-4 sm:px-0">
+            <h1 className="text-4xl xs:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight text-[#1a1525] leading-[1.1]">
               Why<br/>
               Choose<br/>
               MangoWala?
