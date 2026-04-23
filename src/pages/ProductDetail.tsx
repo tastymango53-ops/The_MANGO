@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Minus, ShoppingBag, Check } from 'lucide-react';
-import { mockProducts } from '../data';
-import type { Product } from '../data';
+import { useProducts } from '../context/ProductContext';
 import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
 
@@ -10,20 +9,23 @@ export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [product, setProduct] = useState<Product | null>(null);
+  const { products } = useProducts();
+  const [product, setProduct] = useState<any | null>(null);
   const [selectedWeight, setSelectedWeight] = useState(1);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    const found = mockProducts.find((p) => p.id === id);
+    const found = products.find((p) => p.id === id);
     if (found) {
       setProduct(found);
-      setSelectedWeight(found.weightOptions[0]);
+      if (found.weightOptions && found.weightOptions.length > 0) {
+        setSelectedWeight(found.weightOptions[0]);
+      }
     } else {
       navigate('/');
     }
-  }, [id, navigate]);
+  }, [id, products, navigate]);
 
   if (!product) return null;
 
@@ -76,7 +78,7 @@ export function ProductDetail() {
                 <h3 className="text-lg font-black text-dark mb-3 uppercase tracking-wider">The Story</h3>
                 <p className="text-dark/80 leading-relaxed mb-4">{product.originStory}</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.tasteNotes.map((note) => (
+                  {product.tasteNotes?.map((note: string) => (
                     <span 
                       key={note} 
                       className="bg-mango/10 text-mango-dark px-4 py-1 rounded-full text-sm font-bold border border-mango/20"
@@ -91,7 +93,7 @@ export function ProductDetail() {
               <div>
                 <h3 className="text-lg font-black text-dark mb-3 uppercase tracking-wider">Select Weight</h3>
                 <div className="flex gap-4">
-                  {product.weightOptions.map((weight) => (
+                  {(product.weightOptions || [1, 2, 5]).map((weight: number) => (
                     <button
                       key={weight}
                       onClick={() => setSelectedWeight(weight)}
