@@ -1,22 +1,16 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-}
+import { Product } from './data';
 
 export interface CartItem extends Product {
   quantity: number;
+  selectedWeight: number; // in kg
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product) => void;
-  updateQuantity: (id: string, quantity: number) => Promise<void>; // Simulated async to show "Saving..."
-  removeFromCart: (id: string) => void;
+  addToCart: (product: Product, weight: number, quantity: number) => void;
+  updateQuantity: (id: string, weight: number, quantity: number) => Promise<void>; 
+  removeFromCart: (id: string, weight: number) => void;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   cartTotal: number;
@@ -29,38 +23,46 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = (product: Product, weight: number, quantity: number = 1) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      // Find item with SAME id and SAME weight
+      const existing = prev.find((item) => item.id === product.id && item.selectedWeight === weight);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          (item.id === product.id && item.selectedWeight === weight) 
+            ? { ...item, quantity: item.quantity + quantity } 
+            : item
         );
       }
-      return [...prev, { ...product, quantity }];
+      return [...prev, { ...product, selectedWeight: weight, quantity }];
     });
     setIsCartOpen(true);
   };
 
-  const updateQuantity = async (id: string, quantity: number) => {
+  const updateQuantity = async (id: string, weight: number, quantity: number) => {
     // Simulate API delay for optimistic UI/Saving state per prompt
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         setCart((prev) =>
-          prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+          prev.map((item) => 
+            (item.id === id && item.selectedWeight === weight) 
+              ? { ...item, quantity } 
+              : item
+          )
         );
         resolve();
       }, 600);
     });
   };
 
-  const removeFromCart = (id: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (id: string, weight: number) => {
+    setCart((prev) => prev.filter((item) => !(item.id === id && item.selectedWeight === weight)));
   };
 
   const clearCart = () => setCart([]);
 
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  // Price calculation: basePrice * weight * quantity
+  const cartTotal = cart.reduce((total, item) => total + (item.price * item.selectedWeight * item.quantity), 0);
 
   return (
     <CartContext.Provider

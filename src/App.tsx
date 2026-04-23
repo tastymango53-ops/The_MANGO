@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { CartProvider } from './CartContext';
 import { ProductProvider } from './context/ProductContext';
+import { AuthProvider } from './context/AuthContext';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { ProductGrid } from './components/ProductGrid';
+import { AppRoutes } from './AppRoutes';
 import { CartDrawer } from './components/CartDrawer';
 import { Footer } from './components/Footer';
 import { AdminPanel } from './components/AdminPanel';
@@ -15,29 +15,30 @@ function App() {
   const [isPromptOpen, setIsPromptOpen] = useState(false);
 
   return (
-    <ProductProvider>
-      <CartProvider>
-        <div className="min-h-screen flex flex-col font-sans relative">
-          <FallingLeaves />
-          <Header />
-          <main className="flex-1 relative z-10">
-            <Hero />
-            <ProductGrid />
-          </main>
-          <div className="relative z-10 bg-offwhite">
-            <Footer onOpenAdmin={() => setIsPromptOpen(true)} />
+    <AuthProvider>
+      <ProductProvider>
+        <CartProvider>
+          <div className="min-h-screen flex flex-col font-sans relative">
+            <FallingLeaves />
+            <Header />
+            <main className="flex-1 relative z-10">
+              <AppRoutes />
+            </main>
+            <div className="relative z-10 bg-offwhite">
+              <Footer onOpenAdmin={() => setIsPromptOpen(true)} />
+            </div>
+            <CartDrawer />
+            {isPromptOpen && (
+              <PasswordPrompt 
+                onSuccess={() => { setIsPromptOpen(false); setIsAdminOpen(true); }} 
+                onCancel={() => setIsPromptOpen(false)} 
+              />
+            )}
+            {isAdminOpen && <AdminPanel onClose={() => setIsAdminOpen(false)} />}
           </div>
-          <CartDrawer />
-          {isPromptOpen && (
-            <PasswordPrompt 
-              onSuccess={() => { setIsPromptOpen(false); setIsAdminOpen(true); }} 
-              onCancel={() => setIsPromptOpen(false)} 
-            />
-          )}
-          {isAdminOpen && <AdminPanel onClose={() => setIsAdminOpen(false)} />}
-        </div>
-      </CartProvider>
-    </ProductProvider>
+        </CartProvider>
+      </ProductProvider>
+    </AuthProvider>
   );
 }
 

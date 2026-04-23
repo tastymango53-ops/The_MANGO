@@ -13,6 +13,7 @@ export type Customer = {
   id?: string;
   name: string;
   phone: string;
+  email: string;
   address: string;
   pincode: string;
   created_at?: string;
@@ -26,25 +27,39 @@ export type Order = {
     name: string;
     price: number;
     quantity: number;
+    selectedWeight?: number;
   }>;
   total: number;
   status?: string;
   created_at?: string;
 };
 
-/** Save a customer and return their ID */
-export async function saveCustomer(data: Omit<Customer, 'id' | 'created_at'>): Promise<string | null> {
-  const { data: customer, error } = await supabase
+/** Fetch user profile from customers table */
+export async function getProfile(userId: string): Promise<Customer | null> {
+  const { data, error } = await supabase
     .from('customers')
-    .insert(data)
-    .select('id')
+    .select('*')
+    .eq('id', userId)
     .single();
 
   if (error) {
-    console.error('Error saving customer:', error.message);
+    console.error('Error fetching profile:', error.message);
     return null;
   }
-  return customer.id;
+  return data;
+}
+
+/** Update or create user profile */
+export async function updateProfile(userId: string, profile: Omit<Customer, 'id' | 'created_at'>): Promise<boolean> {
+  const { error } = await supabase
+    .from('customers')
+    .upsert({ id: userId, ...profile });
+
+  if (error) {
+    console.error('Error updating profile:', error.message);
+    return false;
+  }
+  return true;
 }
 
 /** Save an order linked to a customer */
