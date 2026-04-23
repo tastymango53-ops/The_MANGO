@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase, updateProfile } from '../lib/supabase';
 import { ShoppingBag, Mail, Lock, User, Phone, MapPin, Hash, ArrowRight } from 'lucide-react';
 import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
 
 export function Login() {
   const navigate = useNavigate();
@@ -62,7 +63,12 @@ export function Login() {
   };
 
   return (
-    <div className="pt-32 pb-20 min-h-screen bg-offwhite flex items-center justify-center px-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="pt-32 pb-20 min-h-screen bg-offwhite flex items-center justify-center px-4"
+    >
       <div className="max-w-md w-full">
         <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-10 border border-mango/10 relative overflow-hidden">
           {/* Decorative elements */}
@@ -101,6 +107,7 @@ export function Login() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    autoComplete="name"
                     className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark"
                   />
                 </div>
@@ -112,6 +119,7 @@ export function Login() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    autoComplete="tel"
                     className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark"
                   />
                 </div>
@@ -126,6 +134,7 @@ export function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark"
               />
             </div>
@@ -138,6 +147,7 @@ export function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete={isLogin ? "current-password" : "new-password"}
                 className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark"
               />
             </div>
@@ -151,6 +161,7 @@ export function Login() {
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
+                    autoComplete="street-address"
                     rows={2}
                     className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark resize-none"
                   />
@@ -164,6 +175,7 @@ export function Login() {
                     required
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
+                    autoComplete="postal-code"
                     className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark"
                   />
                 </div>
@@ -200,6 +212,6 @@ export function Login() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

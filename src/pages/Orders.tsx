@@ -5,6 +5,7 @@ import type { Order } from '../lib/supabase';
 import { ShoppingBag, Truck, Package, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
 
 export function Orders() {
   const { user, isLoading: authLoading } = useAuth();
@@ -45,7 +46,12 @@ export function Orders() {
   }
 
   return (
-    <div className="pt-32 pb-20 bg-offwhite min-h-screen">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="pt-32 pb-20 bg-offwhite min-h-screen"
+    >
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-4xl font-black text-dark">My Orders</h1>
@@ -143,6 +149,6 @@ export function Orders() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

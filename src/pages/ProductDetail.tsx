@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Minus, ShoppingBag, Check } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +39,12 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-offwhite">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="pt-24 pb-20 min-h-screen bg-offwhite"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
         <Link 
           to="/" 
@@ -168,6 +174,6 @@ export function ProductDetail() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

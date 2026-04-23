@@ -7,6 +7,7 @@ import {
   ShoppingBag, CreditCard, Truck, CheckCircle,
   Clock, Package, RefreshCw, LogOut
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@mangowala.com';
 
@@ -83,7 +84,12 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0]">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="min-h-screen bg-[#FFF8F0]"
+    >
       {/* Header */}
       <div className="bg-white border-b border-[#FF6B00]/10 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -242,6 +248,6 @@ export function AdminDashboard() {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

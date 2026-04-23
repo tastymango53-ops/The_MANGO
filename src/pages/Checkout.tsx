@@ -8,6 +8,7 @@ import {
   Smartphone, MapPin, User, Phone, Truck
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -34,7 +35,7 @@ export function Checkout() {
   // Standard format used by all printed/digital QR codes in India.
   // IMPORTANT: Do NOT encodeURIComponent the UPI ID — GPay requires the raw @ symbol.
   const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR&tn=Mango+Order`;
-  const upiQrValue = upiLink;
+  const upiQrValue = `${window.location.origin}/pay?amount=${cartTotal}&id=${orderId || 'new'}`;
 
   const buildWhatsAppMessage = (id: string) => {
     const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
@@ -76,7 +77,12 @@ export function Checkout() {
   // ── Order Success Screen ────────────────────────────────────────────────────
   if (orderId) {
     return (
-      <div className="min-h-screen bg-[#FFF8F0] flex flex-col items-center justify-center px-4 py-20 text-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="min-h-screen bg-[#FFF8F0] flex flex-col items-center justify-center px-4 py-20 text-center"
+      >
         <div className="w-28 h-28 bg-green-100 rounded-full flex items-center justify-center mb-8 animate-bounce">
           <CheckCircle className="w-16 h-16 text-green-500" />
         </div>
@@ -104,22 +110,32 @@ export function Checkout() {
             Back to Shop
           </button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FFF8F0] flex flex-col items-center justify-center">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="min-h-screen bg-[#FFF8F0] flex flex-col items-center justify-center"
+      >
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
         <Link to="/" className="text-[#FF6B00] font-bold underline">Back to Shop</Link>
-      </div>
+      </motion.div>
     );
   }
 
   // ── Main Checkout ───────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#FFF8F0] pt-24 pb-20">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="min-h-screen bg-[#FFF8F0] pt-24 pb-20"
+    >
       <div className="max-w-2xl mx-auto px-4">
         <Link to="/" className="inline-flex items-center gap-2 text-[#FF6B00] font-bold mb-8 hover:gap-3 transition-all">
           <ArrowLeft className="w-5 h-5" /> Back to Shop
@@ -245,6 +261,6 @@ export function Checkout() {
           You'll receive a WhatsApp confirmation after placing the order.
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
