@@ -50,9 +50,15 @@ export const Header = () => {
             )}
           </nav>
 
-          <Link to="/login" className="sm:hidden p-2 rounded-full text-dark hover:bg-mango-light/30">
-            <User className="w-6 h-6" />
-          </Link>
+          {isLoggedIn ? (
+            <button onClick={signOut} className="sm:hidden p-2 rounded-full text-dark hover:bg-mango-light/30">
+              <User className="w-6 h-6" />
+            </button>
+          ) : (
+            <Link to="/login" className="sm:hidden p-2 rounded-full text-dark hover:bg-mango-light/30">
+              <User className="w-6 h-6" />
+            </Link>
+          )}
 
           <button
             onClick={() => setIsCartOpen(true)}

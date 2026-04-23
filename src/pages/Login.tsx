@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase, updateProfile } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { ShoppingBag, Mail, Lock, User, Phone, MapPin, Hash, ArrowRight } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 
 export function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +22,16 @@ export function Login() {
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
 
+  // Where to go after login — default to home, or wherever they came from
+  const from = (location.state as any)?.from || '/';
+
+  // If already logged in, redirect immediately
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -28,17 +41,17 @@ export function Login() {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate(-1); // Go back to previous page
+        // onAuthStateChange in AuthContext will update `user`, useEffect above will redirect
       } else {
         // Signup
-        const { data: authData, error: authError } = await supabase.auth.signUp({ 
-          email, 
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
           password,
           options: {
             data: { full_name: name }
           }
         });
-        
+
         if (authError) throw authError;
 
         if (authData.user) {
@@ -50,20 +63,25 @@ export function Login() {
             address,
             pincode
           });
+
+          // If user is immediately confirmed (no email verification), redirect now
+          if (authData.session) {
+            navigate(from, { replace: true });
+          } else {
+            setError('Account created! Please check your email to verify, then log in.');
+            setIsLogin(true);
+          }
         }
-        
-        setError("Account created! Please check your email for verification.");
-        setIsLogin(true);
       }
     } catch (err: any) {
-      setError(err.message || "An error occurred");
+      setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -80,17 +98,19 @@ export function Login() {
               <ShoppingBag className="w-8 h-8 text-mango-dark" />
             </div>
             <h1 className="text-3xl font-black text-dark mb-2">
-              {isLogin ? "Welcome Back" : "Join MangoWala"}
+              {isLogin ? 'Welcome Back' : 'Join MangoWala'}
             </h1>
             <p className="text-dark/60 font-medium">
-              {isLogin ? "Login to track your delicious orders" : "Create an account for faster checkout"}
+              {isLogin ? 'Login to track your delicious orders' : 'Create an account for faster checkout'}
             </p>
           </div>
 
           {error && (
             <div className={clsx(
-              "p-4 rounded-2xl mb-6 text-sm font-bold text-center border animate-in fade-in slide-in-from-top-2",
-              error.includes("created") ? "bg-leaf/10 text-leaf-dark border-leaf/20" : "bg-red-50 text-red-600 border-red-100"
+              'p-4 rounded-2xl mb-6 text-sm font-bold text-center border animate-in fade-in slide-in-from-top-2',
+              error.includes('created') || error.includes('verify')
+                ? 'bg-leaf/10 text-leaf-dark border-leaf/20'
+                : 'bg-red-50 text-red-600 border-red-100'
             )}>
               {error}
             </div>
@@ -147,7 +167,7 @@ export function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete={isLogin ? "current-password" : "new-password"}
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
                 className="w-full pl-12 pr-4 py-4 bg-offwhite rounded-2xl border-2 border-transparent focus:border-mango focus:bg-white transition-all outline-none font-bold text-dark"
               />
             </div>
@@ -191,7 +211,7 @@ export function Login() {
                 <span className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  {isLogin ? "Login Now" : "Create Account"}
+                  {isLogin ? 'Login Now' : 'Create Account'}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -200,7 +220,7 @@ export function Login() {
 
           <div className="mt-8 text-center">
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => { setIsLogin(!isLogin); setError(null); }}
               className="text-dark/60 font-bold hover:text-mango-dark transition-colors"
             >
               {isLogin ? (
