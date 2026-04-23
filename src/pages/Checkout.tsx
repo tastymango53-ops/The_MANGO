@@ -48,7 +48,8 @@ export function Checkout() {
     );
   }
 
-  const upiId = "mangowala@upi"; // Placeholder VPA
+  // Use the actual UPI ID from environment variables, or a fallback if not set
+  const upiId = import.meta.env.VITE_UPI_ID || "yourname@bank"; 
   const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR`;
 
   const handleCompleteOrder = async () => {

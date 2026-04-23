@@ -7,6 +7,9 @@ export interface Product {
   price: number;
   image: string;
   description: string;
+  originStory?: string;
+  tasteNotes?: string[];
+  weightOptions?: number[];
   stock?: number;
 }
 
