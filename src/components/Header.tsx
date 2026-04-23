@@ -4,11 +4,13 @@ import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '../context/AuthContext';
+
 export const Header = () => {
   const { cart, setIsCartOpen } = useCart();
+  const { user, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
-  // Placeholder for auth state, will be updated when AuthContext is ready
-  const [isLoggedIn] = useState(false);
+  const isLoggedIn = !!user;
 
   const cartItemsCount = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -42,7 +44,7 @@ export const Header = () => {
                 Login
               </Link>
             ) : (
-              <button className={clsx("text-sm font-bold transition-colors", scrolled ? "text-mango-dark hover:text-mango" : "text-dark hover:text-mango-dark")}>
+              <button onClick={signOut} className={clsx("text-sm font-bold transition-colors", scrolled ? "text-mango-dark hover:text-mango" : "text-dark hover:text-mango-dark")}>
                 Logout
               </button>
             )}

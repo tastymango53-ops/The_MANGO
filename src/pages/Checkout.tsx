@@ -35,7 +35,7 @@ export function Checkout() {
   // Standard format used by all printed/digital QR codes in India.
   // IMPORTANT: Do NOT encodeURIComponent the UPI ID — GPay requires the raw @ symbol.
   const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR&tn=Mango+Order`;
-  const upiQrValue = `${window.location.origin}/pay?amount=${cartTotal}&id=${orderId || 'new'}`;
+  const upiQrValue = upiLink;
 
   const buildWhatsAppMessage = (id: string) => {
     const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
@@ -147,29 +147,30 @@ export function Checkout() {
           <h2 className="text-lg font-black mb-5 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-[#FF6B00]" /> Delivery Details
           </h2>
-          {formData.name ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-[#FFF8F0] rounded-2xl">
-                <User className="w-4 h-4 text-[#FF6B00] shrink-0" />
-                <span className="font-bold text-[#1a1a1a]">{formData.name}</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-[#FFF8F0] rounded-2xl">
-                <Phone className="w-4 h-4 text-[#FF6B00] shrink-0" />
-                <span className="font-bold text-[#1a1a1a]">{formData.phone}</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-[#FFF8F0] rounded-2xl">
-                <Truck className="w-4 h-4 text-[#FF6B00] shrink-0" />
-                <span className="font-bold text-[#1a1a1a]">{formData.address}, {formData.pincode}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-[#1a1a1a]/50 mb-4">Login to auto-fill your delivery details</p>
-              <Link to="/login" className="px-6 py-3 bg-[#FF6B00] text-white rounded-2xl font-black inline-block">
-                Login / Sign Up
-              </Link>
+          {!user && (
+            <div className="mb-6 p-4 bg-[#FFF8F0] rounded-2xl flex items-center justify-between border border-[#FF6B00]/20">
+              <p className="text-sm font-bold text-[#1a1a1a]/60">Login for faster checkout</p>
+              <Link to="/login" className="px-4 py-2 bg-[#FF6B00] text-white rounded-xl text-sm font-black hover:scale-105 transition-all">Login</Link>
             </div>
           )}
+          <div className="space-y-4">
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a1a1a]/30" />
+              <input type="text" placeholder="Full Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} autoComplete="name" className="w-full pl-12 pr-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 border-transparent focus:border-[#FF6B00] focus:bg-white transition-all outline-none font-bold text-[#1a1a1a]" />
+            </div>
+            <div className="relative">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a1a1a]/30" />
+              <input type="tel" placeholder="Phone Number" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} autoComplete="tel" className="w-full pl-12 pr-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 border-transparent focus:border-[#FF6B00] focus:bg-white transition-all outline-none font-bold text-[#1a1a1a]" />
+            </div>
+            <div className="relative">
+              <MapPin className="absolute left-4 top-4 w-5 h-5 text-[#1a1a1a]/30" />
+              <textarea placeholder="Delivery Address" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} autoComplete="street-address" rows={2} className="w-full pl-12 pr-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 border-transparent focus:border-[#FF6B00] focus:bg-white transition-all outline-none font-bold text-[#1a1a1a] resize-none" />
+            </div>
+            <div className="relative">
+              <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a1a1a]/30" />
+              <input type="text" inputMode="numeric" placeholder="Pincode" required value={formData.pincode} onChange={e => setFormData({...formData, pincode: e.target.value})} autoComplete="postal-code" className="w-full pl-12 pr-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 border-transparent focus:border-[#FF6B00] focus:bg-white transition-all outline-none font-bold text-[#1a1a1a]" />
+            </div>
+          </div>
         </div>
 
         {/* Order Summary */}

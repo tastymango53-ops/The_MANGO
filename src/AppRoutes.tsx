@@ -6,7 +6,6 @@ import { Login } from './pages/Login';
 import { Checkout } from './pages/Checkout';
 import { Orders } from './pages/Orders';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { Payment } from './pages/Payment';
 
 export function AppRoutes() {
   const location = useLocation();
@@ -18,7 +17,6 @@ export function AppRoutes() {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/pay" element={<Payment />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
