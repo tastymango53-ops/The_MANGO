@@ -59,11 +59,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const addProduct = async (product: Omit<Product, 'id'>) => {
-    const newProduct = {
-      ...product,
-      // Supabase will generate ID if we don't provide one, but we can pass a temp one if needed
-    };
-    
     const success = await upsertProduct({
       name: product.name,
       price: product.price,
