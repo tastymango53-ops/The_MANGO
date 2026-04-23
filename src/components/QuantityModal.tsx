@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingBag, X } from 'lucide-react';
-import type { Product } from '../CartContext';
+import type { Product } from '../data';
 
 interface QuantityModalProps {
   product: Product;

@@ -78,7 +78,7 @@ export const CartDrawer = () => {
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-              <shoppingbag className="w-16 h-16 text-dark/20" />
+              <ShoppingBag className="w-16 h-16 text-dark/20" />
               <p className="text-xl text-dark/60 font-medium">Your cart is empty.</p>
               <button
                 onClick={() => setIsCartOpen(false)}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
-import { supabase, getProfile, saveOrder } from '../lib/supabase';
+import { getProfile, saveOrder } from '../lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, CreditCard, QrCode, CheckCircle, ExternalLink } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { supabase, Order } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
+import type { Order } from '../lib/supabase';
 import { ShoppingBag, Truck, Package, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';

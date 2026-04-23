@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Minus, ShoppingBag, Check } from 'lucide-react';
-import { mockProducts, Product } from '../data';
+import { mockProducts } from '../data';
+import type { Product } from '../data';
 import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
 
