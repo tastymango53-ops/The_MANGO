@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { mockProducts } from '../data';
-import { fetchProducts, upsertProduct, deleteProduct } from '../lib/supabase';
+import { fetchProducts, upsertProduct, updateProduct, deleteProduct } from '../lib/supabase';
 import type { ProductDB } from '../lib/supabase';
 
 export interface Product {
@@ -80,20 +80,23 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const editProduct = async (id: string, updatedProduct: Partial<Product>) => {
-    const dbUpdate: any = { id };
-    if (updatedProduct.name) dbUpdate.name = updatedProduct.name;
-    if (updatedProduct.price !== undefined) dbUpdate.price = updatedProduct.price;
-    if (updatedProduct.image) dbUpdate.image = updatedProduct.image;
-    if (updatedProduct.description) dbUpdate.description = updatedProduct.description;
-    if (updatedProduct.originStory) dbUpdate.origin_story = updatedProduct.originStory;
-    if (updatedProduct.tasteNotes) dbUpdate.taste_notes = updatedProduct.tasteNotes;
-    if (updatedProduct.weightOptions) dbUpdate.weight_options = updatedProduct.weightOptions;
+    const fields: Record<string, any> = {};
+    if (updatedProduct.name !== undefined)         fields.name = updatedProduct.name;
+    if (updatedProduct.price !== undefined)        fields.price = Number(updatedProduct.price);
+    if (updatedProduct.image !== undefined)        fields.image = updatedProduct.image;
+    if (updatedProduct.description !== undefined)  fields.description = updatedProduct.description;
+    if (updatedProduct.originStory !== undefined)  fields.origin_story = updatedProduct.originStory;
+    if (updatedProduct.tasteNotes !== undefined)   fields.taste_notes = updatedProduct.tasteNotes;
+    if (updatedProduct.weightOptions !== undefined) fields.weight_options = updatedProduct.weightOptions;
 
-    const success = await upsertProduct(dbUpdate);
+    const success = await updateProduct(id, fields);
     if (success) {
+      // Immediately update local state so UI reflects the change without a full reload
       setProducts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, ...updatedProduct } : p))
+        prev.map((p) => (p.id === id ? { ...p, ...updatedProduct, price: Number(updatedProduct.price ?? p.price) } : p))
       );
+    } else {
+      console.error('editProduct: updateProduct returned false — check Supabase RLS policies on the products table');
     }
   };
 

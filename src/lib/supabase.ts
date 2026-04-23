@@ -132,6 +132,19 @@ export async function upsertProduct(product: Partial<ProductDB>): Promise<boolea
   return true;
 }
 
+export async function updateProduct(id: string, fields: Partial<Omit<ProductDB, 'id'>>): Promise<boolean> {
+  const { error } = await supabase
+    .from('products')
+    .update(fields)
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating product:', error.message);
+    return false;
+  }
+  return true;
+}
+
 export async function deleteProduct(id: string): Promise<boolean> {
   const { error } = await supabase
     .from('products')
