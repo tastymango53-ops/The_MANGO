@@ -30,10 +30,14 @@ export function Checkout() {
 
   const upiId = import.meta.env.VITE_UPI_ID || 'yourname@bank';
   const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919999999999';
-  // upi:// link — works for button taps AND QR scanning
-  // IMPORTANT: Do NOT encodeURIComponent the UPI ID — GPay requires the raw @ symbol
+  // upi:// link — for the tap button (works as a direct app deep-link)
   const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR&tn=Mango+Order`;
-  const upiQrValue = upiLink; // Same clean string for the QR code
+
+  // intent:// URI — for the QR code.
+  // Android camera apps route this directly to any UPI app (GPay/PhonePe/Paytm)
+  // opening the payment screen with all details pre-filled — just like tapping the button.
+  const upiQrValue = `intent://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR&tn=Mango+Order#Intent;scheme=upi;end`;
+
 
   const buildWhatsAppMessage = (id: string) => {
     const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
