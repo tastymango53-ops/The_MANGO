@@ -2,7 +2,16 @@ import { useProducts } from '../context/ProductContext';
 import { Link } from 'react-router-dom';
 
 export const ProductGrid = () => {
-  const { products } = useProducts();
+  const { products, isLoading } = useProducts();
+
+  if (isLoading) {
+    return (
+      <section id="shop" className="py-24 px-4 text-center">
+        <div className="w-16 h-16 border-4 border-mango border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p className="mt-4 text-dark/60 font-bold">Fetching Fresh Mangoes...</p>
+      </section>
+    );
+  }
 
   return (
     <section id="shop" className="py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto relative z-10">

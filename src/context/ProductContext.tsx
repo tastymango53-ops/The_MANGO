@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { mockProducts } from '../data';
+import { fetchProducts, upsertProduct, deleteProduct } from '../lib/supabase';
+import type { ProductDB } from '../lib/supabase';
 
 export interface Product {
   id: string;
@@ -15,53 +17,93 @@ export interface Product {
 
 interface ProductContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  removeProduct: (id: string) => void;
-  editProduct: (id: string, updatedProduct: Partial<Product>) => void;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  removeProduct: (id: string) => Promise<void>;
+  editProduct: (id: string, updatedProduct: Partial<Product>) => Promise<void>;
+  isLoading: boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
+// Helper to map DB snake_case to Frontend camelCase
+const mapDBToProduct = (db: ProductDB): Product => ({
+  id: db.id,
+  name: db.name,
+  price: db.price,
+  image: db.image,
+  description: db.description,
+  originStory: db.origin_story,
+  tasteNotes: db.taste_notes,
+  weightOptions: db.weight_options,
+});
+
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load from local storage or fallback to mock data
-  useEffect(() => {
-    const saved = localStorage.getItem('mango_products');
-    if (saved) {
-      setProducts(JSON.parse(saved));
+  // Load from Supabase
+  const loadProducts = async () => {
+    setIsLoading(true);
+    const data = await fetchProducts();
+    if (data && data.length > 0) {
+      setProducts(data.map(mapDBToProduct));
     } else {
+      // Fallback to mock data if DB is empty
       setProducts(mockProducts);
     }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadProducts();
   }, []);
 
-  // Save to local storage whenever products change
-  useEffect(() => {
-    if (products.length > 0) {
-      localStorage.setItem('mango_products', JSON.stringify(products));
-    }
-  }, [products]);
-
-  const addProduct = (product: Omit<Product, 'id'>) => {
+  const addProduct = async (product: Omit<Product, 'id'>) => {
     const newProduct = {
       ...product,
-      id: Math.random().toString(36).substr(2, 9),
+      // Supabase will generate ID if we don't provide one, but we can pass a temp one if needed
     };
-    setProducts((prev) => [...prev, newProduct]);
+    
+    const success = await upsertProduct({
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      description: product.description,
+      origin_story: product.originStory,
+      taste_notes: product.tasteNotes,
+      weight_options: product.weightOptions,
+    } as any);
+
+    if (success) loadProducts();
   };
 
-  const removeProduct = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+  const removeProduct = async (id: string) => {
+    const success = await deleteProduct(id);
+    if (success) {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    }
   };
 
-  const editProduct = (id: string, updatedProduct: Partial<Product>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updatedProduct } : p))
-    );
+  const editProduct = async (id: string, updatedProduct: Partial<Product>) => {
+    const dbUpdate: any = { id };
+    if (updatedProduct.name) dbUpdate.name = updatedProduct.name;
+    if (updatedProduct.price !== undefined) dbUpdate.price = updatedProduct.price;
+    if (updatedProduct.image) dbUpdate.image = updatedProduct.image;
+    if (updatedProduct.description) dbUpdate.description = updatedProduct.description;
+    if (updatedProduct.originStory) dbUpdate.origin_story = updatedProduct.originStory;
+    if (updatedProduct.tasteNotes) dbUpdate.taste_notes = updatedProduct.tasteNotes;
+    if (updatedProduct.weightOptions) dbUpdate.weight_options = updatedProduct.weightOptions;
+
+    const success = await upsertProduct(dbUpdate);
+    if (success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...updatedProduct } : p))
+      );
+    }
   };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, removeProduct, editProduct }}>
+    <ProductContext.Provider value={{ products, addProduct, removeProduct, editProduct, isLoading }}>
       {children}
     </ProductContext.Provider>
   );

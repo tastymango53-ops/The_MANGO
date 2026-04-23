@@ -13,6 +13,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const { products, addProduct, removeProduct, editProduct } = useProducts();
 
   const [isAdding, setIsAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
 
@@ -32,21 +33,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
     });
   };
 
-  const saveEdit = (id: string) => {
+  const saveEdit = async (id: string) => {
     if (!editForm.price) return;
-    editProduct(id, {
+    setIsSaving(true);
+    await editProduct(id, {
       price: Number(editForm.price),
       image: editForm.image,
       description: editForm.description,
     });
     setEditingId(null);
+    setIsSaving(false);
   };
 
   // ── Add new product ───────────────────────────────────────────────────────
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price || !formData.image) return;
-    addProduct({
+    setIsSaving(true);
+    await addProduct({
       name: formData.name,
       price: Number(formData.price),
       image: formData.image,
@@ -57,6 +61,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
     } as Omit<Product, 'id'>);
     setFormData(EMPTY_FORM);
     setIsAdding(false);
+    setIsSaving(false);
   };
 
   return (
@@ -137,9 +142,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
               </div>
               <button
                 type="submit"
-                className="mt-6 w-full py-3 bg-mango font-semibold text-dark rounded-xl shadow-md hover:bg-mango-light transition-colors"
+                disabled={isSaving}
+                className="mt-6 w-full py-3 bg-mango font-semibold text-dark rounded-xl shadow-md hover:bg-mango-light transition-colors disabled:opacity-50"
               >
-                Save Mango
+                {isSaving ? 'Saving...' : 'Save Mango'}
               </button>
             </form>
           )}
@@ -231,10 +237,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                     {/* Save button */}
                     <button
                       onClick={() => saveEdit(product.id)}
-                      className="mt-3 w-full py-2.5 bg-mango hover:bg-mango-dark text-white font-black rounded-xl flex items-center justify-center gap-2 transition-colors"
+                      disabled={isSaving}
+                      className="mt-3 w-full py-2.5 bg-mango hover:bg-mango-dark text-white font-black rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                     >
                       <Check className="w-4 h-4" />
-                      Save Changes
+                      {isSaving ? 'Saving...' : 'Save Changes'}
                     </button>
                   </div>
                 )}

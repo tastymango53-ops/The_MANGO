@@ -45,6 +45,18 @@ export type Order = {
   created_at?: string;
 };
 
+export type ProductDB = {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+  origin_story: string;
+  taste_notes: string[];
+  weight_options: number[];
+  created_at?: string;
+};
+
 // ─── Profile functions ────────────────────────────────────────────────────────
 
 export async function getProfile(userId: string): Promise<Customer | null> {
@@ -91,4 +103,44 @@ export async function getAllOrders(): Promise<Order[]> {
 
   if (error) { console.error('Error fetching orders:', error.message); return []; }
   return data ?? [];
+}
+
+// ─── Product functions ────────────────────────────────────────────────────────
+
+export async function fetchProducts(): Promise<ProductDB[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching products:', error.message);
+    return [];
+  }
+  return data || [];
+}
+
+export async function upsertProduct(product: Partial<ProductDB>): Promise<boolean> {
+  const { error } = await supabase
+    .from('products')
+    .upsert(product);
+
+  if (error) {
+    console.error('Error upserting product:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting product:', error.message);
+    return false;
+  }
+  return true;
 }

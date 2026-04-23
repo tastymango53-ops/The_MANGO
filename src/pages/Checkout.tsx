@@ -30,7 +30,10 @@ export function Checkout() {
 
   const upiId = import.meta.env.VITE_UPI_ID || 'yourname@bank';
   const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919999999999';
-  const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR`;
+  // upi:// link — works for button taps AND QR scanning
+  // IMPORTANT: Do NOT encodeURIComponent the UPI ID — GPay requires the raw @ symbol
+  const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR&tn=Mango+Order`;
+  const upiQrValue = upiLink; // Same clean string for the QR code
 
   const buildWhatsAppMessage = (id: string) => {
     const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
@@ -212,10 +215,16 @@ export function Checkout() {
               {showQR && (
                 <div className="flex flex-col items-center py-4 animate-in zoom-in-95">
                   <div className="bg-white p-4 rounded-3xl shadow-inner border-4 border-[#FFD700]/30">
-                    <QRCodeSVG value={upiLink} size={180} />
+                    <QRCodeSVG value={upiQrValue} size={200} level="M" />
                   </div>
-                  <p className="text-xs text-center mt-3 text-[#1a1a1a]/40 font-bold uppercase tracking-widest">
-                    Scan using any UPI app
+                  <p className="text-sm text-center mt-3 text-[#1a1a1a]/60 font-bold">
+                    Open <span className="text-[#FF6B00]">GPay / PhonePe / Paytm</span>
+                  </p>
+                  <p className="text-xs text-center mt-1 text-[#1a1a1a]/40">
+                    Tap <span className="font-bold">Scan QR</span> inside the app → point at this code
+                  </p>
+                  <p className="text-[10px] text-center mt-2 text-[#1a1a1a]/30 font-mono break-all max-w-xs">
+                    Pay to: {upiId}
                   </p>
                 </div>
               )}

@@ -12,7 +12,7 @@ interface CustomerInfo {
  * The customer's WhatsApp will open directly to the seller's chat with the message ready to send.
  */
 export function buildWhatsAppOrderUrl(customer: CustomerInfo, items: CartItem[], total: number): string {
-  const ownerNumber = import.meta.env.VITE_OWNER_WHATSAPP || '919999999999';
+  const ownerNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919999999999';
 
   // Build the item list
   const itemLines = items
