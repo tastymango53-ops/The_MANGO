@@ -85,11 +85,11 @@ export function Orders() {
                   </div>
                   <div>
                     <p className="text-xs font-black text-mango-dark uppercase tracking-widest mb-1">Total</p>
-                    <p className="text-xl font-black text-leaf-dark">₹{order.total.toLocaleString()}</p>
+                    <p className="text-xl font-black text-leaf-dark">₹{order.amount.toLocaleString()}</p>
                   </div>
                   <div className={clsx(
                     "px-6 py-2 rounded-full font-black text-sm uppercase tracking-wider",
-                    order.status === 'Delivered' ? "bg-leaf text-white" : "bg-mango text-white"
+                    order.status === 'delivered' ? "bg-leaf text-white" : "bg-mango text-white"
                   )}>
                     {order.status}
                   </div>
@@ -102,9 +102,9 @@ export function Orders() {
                     
                     {[
                       { icon: Clock, label: 'Confirmed', done: true },
-                      { icon: Package, label: 'Packed', done: order.status !== 'Confirmed' },
-                      { icon: Truck, label: 'Shipped', done: order.status === 'Shipped' || order.status === 'Delivered' },
-                      { icon: CheckCircle, label: 'Delivered', done: order.status === 'Delivered' }
+                      { icon: Package, label: 'Packed', done: order.status !== 'pending' },
+                      { icon: Truck, label: 'Shipped', done: order.status === 'shipped' || order.status === 'delivered' },
+                      { icon: CheckCircle, label: 'Delivered', done: order.status === 'delivered' }
                     ].map((step, idx) => (
                       <div key={idx} className="relative z-10 flex flex-col items-center">
                         <div className={clsx(

@@ -4,10 +4,15 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials are not set. Orders will not be saved to the database.');
+  console.warn('Supabase credentials not set. Orders will not be saved.');
 }
 
-export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder'
+);
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type Customer = {
   id?: string;
@@ -19,22 +24,29 @@ export type Customer = {
   created_at?: string;
 };
 
+export type OrderItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  selectedWeight?: number;
+};
+
 export type Order = {
   id?: string;
-  customer_id: string;
-  items: Array<{
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    selectedWeight?: number;
-  }>;
-  total: number;
-  status?: string;
+  customer_id?: string;
+  customer_name: string;
+  phone: string;
+  address: string;
+  items: OrderItem[];
+  amount: number;
+  payment_type: 'upi' | 'cod';
+  status?: 'pending' | 'confirmed' | 'shipped' | 'delivered';
   created_at?: string;
 };
 
-/** Fetch user profile from customers table */
+// ─── Profile functions ────────────────────────────────────────────────────────
+
 export async function getProfile(userId: string): Promise<Customer | null> {
   const { data, error } = await supabase
     .from('customers')
@@ -42,27 +54,18 @@ export async function getProfile(userId: string): Promise<Customer | null> {
     .eq('id', userId)
     .single();
 
-  if (error) {
-    console.error('Error fetching profile:', error.message);
-    return null;
-  }
+  if (error) { console.error('Error fetching profile:', error.message); return null; }
   return data;
 }
 
-/** Update or create user profile */
 export async function updateProfile(userId: string, profile: Omit<Customer, 'id' | 'created_at'>): Promise<boolean> {
-  const { error } = await supabase
-    .from('customers')
-    .upsert({ id: userId, ...profile });
-
-  if (error) {
-    console.error('Error updating profile:', error.message);
-    return false;
-  }
+  const { error } = await supabase.from('customers').upsert({ id: userId, ...profile });
+  if (error) { console.error('Error updating profile:', error.message); return false; }
   return true;
 }
 
-/** Save an order linked to a customer */
+// ─── Order functions ──────────────────────────────────────────────────────────
+
 export async function saveOrder(order: Omit<Order, 'id' | 'created_at'>): Promise<string | null> {
   const { data, error } = await supabase
     .from('orders')
@@ -70,9 +73,22 @@ export async function saveOrder(order: Omit<Order, 'id' | 'created_at'>): Promis
     .select('id')
     .single();
 
-  if (error) {
-    console.error('Error saving order:', error.message);
-    return null;
-  }
-  return data.id;
+  if (error) { console.error('Error saving order:', error.message); return null; }
+  return data?.id ?? null;
+}
+
+export async function updateOrderStatus(id: string, status: Order['status']): Promise<boolean> {
+  const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+  if (error) { console.error('Error updating order status:', error.message); return false; }
+  return true;
+}
+
+export async function getAllOrders(): Promise<Order[]> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('Error fetching orders:', error.message); return []; }
+  return data ?? [];
 }
