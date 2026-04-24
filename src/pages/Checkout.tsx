@@ -51,10 +51,10 @@ export function Checkout() {
   const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919561271501';
 
   // Amount formatted to 2 decimal places (required by UPI spec)
-  const amount = cartTotal?.toFixed(2) || '0.00';
+  const upiAmount = cartTotal ? parseFloat(cartTotal as any).toFixed(2) : '1.00';
   
   // Standard UPI deeplink — works on mobile with GPay/PhonePe/Paytm
-  const upiLink = `upi://pay?pa=${encodeURIComponent("mfurniturewala2007@okicici")}&pn=${encodeURIComponent("Mango Store")}&am=${Number(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent("Mango Store Order")}`;
+  const upiLink = `upi://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order`;
 
   const handleConfirmOrder = async () => {
     if (!formData.name || !formData.phone || !formData.address) {
@@ -307,7 +307,7 @@ export function Checkout() {
                     Open app → tap <span className="font-bold">Scan QR</span> → point at this code
                   </p>
                   <p className="text-[10px] text-center mt-2 text-[#1a1a1a]/30 font-mono break-all max-w-xs">
-                    Pay to: {upiId} · ₹{amount}
+                    Pay to: {upiId} · ₹{upiAmount}
                   </p>
                 </div>
               )}
