@@ -45,28 +45,25 @@ export function Checkout() {
     });
   }, [user, authLoading, profileLoaded]);
 
+  if (!cart) return <div>Loading...</div>;
+
   const upiId = import.meta.env.VITE_UPI_ID || 'mfurniturewala2007@okicici';
   const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919561271501';
 
   // Amount formatted to 2 decimal places (required by UPI spec)
-  const amount = cartTotal.toFixed(2);
+  const amount = cartTotal?.toFixed(2) || '0.00';
+  
   // Standard UPI deeplink — works on mobile with GPay/PhonePe/Paytm
-  const upiLink = `upi://pay?pa=${upiId}&pn=MangoCo&am=${amount}&cu=INR&tn=MangoOrder`;
+  const upiLink = `upi://pay?pa=${encodeURIComponent("mfurniturewala2007@okicici")}&pn=${encodeURIComponent("Mango Store")}&am=${Number(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent("Mango Store Order")}`;
 
   const handleConfirmOrder = async () => {
     if (!formData.name || !formData.phone || !formData.address) {
       alert('Please fill in your name, phone number, and delivery address.');
       return;
     }
-
-    // FIX: Open WhatsApp window BEFORE the async call to avoid popup blocker
-    // Popup blockers block window.open() called after await
     const waWindow = window.open('', '_blank', 'noopener,noreferrer');
-
-    // FIX: Always get a fresh session — never trust stale user state
     const { data: { session } } = await supabase.auth.getSession();
     const currentUserId = session?.user?.id ?? 'guest';
-
     setIsSubmitting(true);
     try {
       const id = await saveOrder({
@@ -85,33 +82,26 @@ export function Checkout() {
         payment_type: paymentType,
         status: 'pending',
       });
-
       if (id) {
         setOrderId(id);
         clearCart();
-
-        // Build WhatsApp message with real order ID
         const shortId = id.slice(0, 8).toUpperCase();
         const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
         const msg = `Hi! New Order 🥭 #${shortId} | ${itemsSummary} | ₹${cartTotal} | ${paymentType.toUpperCase()} | ${formData.name} | ${formData.phone}`;
-        const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
-
-        // Set the URL on the already-opened window (avoids popup blocker)
+        const waUrl = `https://wa.me/919561271501?text=${encodeURIComponent(msg)}`;
         if (waWindow) {
           waWindow.location.href = waUrl;
         } else {
-          // Fallback if popup was blocked
           window.open(waUrl, '_blank', 'noopener,noreferrer');
         }
       } else {
-        // Close the blank window if order failed
         waWindow?.close();
         alert('Could not save your order. Please try again.');
       }
     } catch (err) {
       waWindow?.close();
       console.error('Order failed:', err);
-      alert('Something went wrong placing your order. Please try again.');
+      alert('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -138,13 +128,13 @@ export function Checkout() {
         </p>
         {paymentType === 'upi' && (
           <div className="mb-6 w-full max-w-xs space-y-3">
-            <a
-              href={upiLink}
+            <button
+              onClick={() => window.location.href = upiLink}
               className="w-full py-4 bg-[#FF6B00] text-white text-center rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all"
             >
               <Smartphone className="w-5 h-5" />
-              Pay ₹{cartTotal} via UPI App
-            </a>
+              Pay ₹{cartTotal ?? 0} via UPI App
+            </button>
             <p className="text-xs text-[#1a1a1a]/40 font-bold text-center">
               Opens GPay / PhonePe / Paytm on mobile
             </p>
@@ -162,7 +152,7 @@ export function Checkout() {
     );
   }
 
-  if (cart.length === 0) {
+  if (cart?.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -248,7 +238,7 @@ export function Checkout() {
         <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#FF6B00]/10 mb-6">
           <h2 className="text-lg font-black mb-5">Order Summary</h2>
           <div className="space-y-3 mb-5">
-            {cart.map((item) => (
+            {cart?.map((item) => (
               <div key={`${item.id}-${item.selectedWeight}`} className="flex justify-between items-center py-2 border-b border-[#FF6B00]/5 last:border-0">
                 <div>
                   <p className="font-black text-[#1a1a1a]">{item.name} × {item.quantity}</p>
@@ -260,7 +250,7 @@ export function Checkout() {
           </div>
           <div className="flex justify-between items-center pt-3 border-t-2 border-dashed border-[#FF6B00]/20">
             <span className="font-black text-[#1a1a1a] text-lg">Total</span>
-            <span className="text-2xl font-black text-[#FF6B00]">₹{cartTotal.toLocaleString()}</span>
+            <span className="text-2xl font-black text-[#FF6B00]">₹{(cartTotal ?? 0).toLocaleString()}</span>
           </div>
         </div>
 
@@ -286,15 +276,15 @@ export function Checkout() {
 
           {paymentType === 'upi' && (
             <div className="space-y-3">
-              <a
-                href={upiLink}
+              <button
+                onClick={() => window.location.href = upiLink}
                 className="block w-full py-4 bg-green-500 text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all"
               >
                 <span className="flex items-center justify-center gap-2">
                   <Smartphone className="w-5 h-5" />
                   Open GPay / PhonePe / Paytm
                 </span>
-              </a>
+              </button>
               <p className="text-xs text-center text-[#1a1a1a]/40 font-bold">
                 ⚠️ UPI deep-link only works on mobile. Use QR below on desktop.
               </p>
@@ -337,7 +327,7 @@ export function Checkout() {
               Placing Order...
             </span>
           ) : (
-            `Confirm Order · ₹${cartTotal.toLocaleString()}`
+            `Confirm Order · ₹${(cartTotal ?? 0).toLocaleString()}`
           )}
         </button>
         <p className="text-xs text-center mt-3 text-[#1a1a1a]/40 font-bold">
