@@ -89,14 +89,22 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (updatedProduct.tasteNotes !== undefined)   fields.taste_notes = updatedProduct.tasteNotes;
     if (updatedProduct.weightOptions !== undefined) fields.weight_options = updatedProduct.weightOptions;
 
+    console.log('ProductContext.editProduct: updating id', id, 'with fields', fields);
     const success = await updateProduct(id, fields);
     if (success) {
+      console.log('ProductContext.editProduct: Supabase update succeeded, refreshing local state');
       // Immediately update local state so UI reflects the change without a full reload
       setProducts((prev) =>
         prev.map((p) => (p.id === id ? { ...p, ...updatedProduct, price: Number(updatedProduct.price ?? p.price) } : p))
       );
     } else {
-      console.error('editProduct: updateProduct returned false — check Supabase RLS policies on the products table');
+      console.error(
+        'ProductContext.editProduct: updateProduct returned false — possible causes:\n' +
+        '  1) Supabase RLS policy does not allow UPDATE on products table for admin email\n' +
+        '  2) Network / credentials issue\n' +
+        '  3) The product id does not exist in the DB\n' +
+        '  → Open Supabase dashboard → Auth → Policies → products table → ensure admin can UPDATE'
+      );
     }
   };
 

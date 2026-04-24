@@ -19,14 +19,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
 
   // ── Edit form for an existing product ────────────────────────────────────
   const [editForm, setEditForm] = useState<{
+    name: string;
     price: string;
     image: string;
     description: string;
-  }>({ price: '', image: '', description: '' });
+  }>({ name: '', price: '', image: '', description: '' });
 
   const startEdit = (product: Product) => {
     setEditingId(product.id);
     setEditForm({
+      name: product.name,
       price: String(product.price),
       image: product.image,
       description: product.description,
@@ -34,15 +36,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   };
 
   const saveEdit = async (id: string) => {
-    if (!editForm.price) return;
+    if (!editForm.price) { console.error('Admin save: price is required'); return; }
     setIsSaving(true);
-    await editProduct(id, {
-      price: Number(editForm.price),
-      image: editForm.image,
-      description: editForm.description,
-    });
-    setEditingId(null);
-    setIsSaving(false);
+    console.log('Admin save: calling editProduct for id', id, 'with fields', editForm);
+    try {
+      await editProduct(id, {
+        name: editForm.name,
+        price: Number(editForm.price),
+        image: editForm.image,
+        description: editForm.description,
+      });
+      console.log('Admin save: success');
+      setEditingId(null);
+    } catch (err) {
+      console.error('Admin save: editProduct threw an error', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // ── Add new product ───────────────────────────────────────────────────────
@@ -191,6 +201,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                 {editingId === product.id && (
                   <div className="px-4 pb-5 border-t border-mango/10 pt-4 bg-mango/5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                      {/* Name */}
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-wider text-mango-dark mb-1">
+                          Product Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editForm.name}
+                          onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl ring-2 ring-mango/30 focus:ring-mango outline-none bg-white text-dark font-bold"
+                          placeholder="e.g. Alphonso"
+                        />
+                      </div>
 
                       {/* Price */}
                       <div>

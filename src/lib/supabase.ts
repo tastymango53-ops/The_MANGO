@@ -133,15 +133,22 @@ export async function upsertProduct(product: Partial<ProductDB>): Promise<boolea
 }
 
 export async function updateProduct(id: string, fields: Partial<Omit<ProductDB, 'id'>>): Promise<boolean> {
+  console.log('supabase.updateProduct: id=', id, 'fields=', fields);
   const { error } = await supabase
     .from('products')
     .update(fields)
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating product:', error.message);
+    console.error('supabase.updateProduct ERROR:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
     return false;
   }
+  console.log('supabase.updateProduct: success');
   return true;
 }
 

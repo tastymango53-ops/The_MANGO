@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
-import { getProfile, saveOrder } from '../lib/supabase';
+import { getProfile, saveOrder, supabase } from '../lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   ArrowLeft, CreditCard, QrCode, CheckCircle,
@@ -21,6 +21,7 @@ export function Checkout() {
   const [paymentType, setPaymentType] = useState<'upi' | 'cod'>('upi');
   const [showQR, setShowQR] = useState(false);
 
+  // Bug #3: Pre-fill form from Supabase profile on mount
   useEffect(() => {
     if (user) {
       getProfile(user.id).then((profile) => {
@@ -29,18 +30,20 @@ export function Checkout() {
     }
   }, [user]);
 
-  const upiId = import.meta.env.VITE_UPI_ID || 'yourname@bank';
-  const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919999999999';
-  // Universal upi:// link — works for both button tap deep-linking and in-app QR scanners.
-  // Standard format used by all printed/digital QR codes in India.
-  // IMPORTANT: Do NOT encodeURIComponent the UPI ID — GPay requires the raw @ symbol.
-  const upiLink = `upi://pay?pa=${upiId}&pn=MangoWala&am=${cartTotal}&cu=INR&tn=Mango+Order`;
+  const upiId = import.meta.env.VITE_UPI_ID || 'mfurniturewala2007@okicici';
+  const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919561271501';
+
+  // Bug #4: UPI deeplink — amount MUST use .toFixed(2), all 4 params required
+  const amount = cartTotal.toFixed(2);
+  const upiLink = `upi://pay?pa=${upiId}&pn=MangoCo&am=${amount}&cu=INR&tn=MangoOrder`;
   const upiQrValue = upiLink;
 
-  const buildWhatsAppMessage = (id: string) => {
+  // Bug #7: WhatsApp message uses Supabase order ID
+  const openWhatsApp = (id: string) => {
     const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
-    const msg = `Hi! New Order 🥭 #${id.slice(0, 8).toUpperCase()} | ${itemsSummary} | ₹${cartTotal} | ${paymentType.toUpperCase()} | ${formData.name} | ${formData.phone}`;
-    return `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
+    const msg = `Hi! New Order 🥭 #${id} | ${itemsSummary} | ₹${cartTotal} | ${paymentType.toUpperCase()} | ${formData.name} | ${formData.phone}`;
+    // Bug #7: use window.open, not window.location
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleConfirmOrder = async () => {
@@ -48,10 +51,16 @@ export function Checkout() {
       alert('Please complete your delivery details by logging in or signing up.');
       return;
     }
+
+    // Bug #6: Always fetch a fresh session — never rely on stale component state
+    const { data: { session } } = await supabase.auth.getSession();
+    const currentUserId = session?.user?.id ?? 'guest';
+
     setIsSubmitting(true);
     try {
+      // Bug #7 Step 1: Insert order and get back the real ID using .select().single()
       const id = await saveOrder({
-        customer_id: user?.id || 'guest',
+        customer_id: currentUserId,
         customer_name: formData.name,
         phone: formData.phone,
         address: `${formData.address}, ${formData.pincode}`,
@@ -64,11 +73,14 @@ export function Checkout() {
       if (id) {
         setOrderId(id);
         clearCart();
-        // Open WhatsApp
-        window.open(buildWhatsAppMessage(id), '_blank');
+        // Bug #7 Step 3: Open WhatsApp with the real order ID
+        openWhatsApp(id.slice(0, 8).toUpperCase());
+      } else {
+        alert('Failed to place order. Please try again.');
       }
     } catch (err) {
       console.error('Failed to save order', err);
+      alert('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
