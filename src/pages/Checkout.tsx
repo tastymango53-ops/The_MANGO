@@ -88,7 +88,7 @@ export function Checkout() {
         const shortId = id.slice(0, 8).toUpperCase();
         const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
         const msg = `Hi! New Order 🥭 #${shortId} | ${itemsSummary} | ₹${cartTotal} | ${paymentType.toUpperCase()} | ${formData.name} | ${formData.phone}`;
-        const waUrl = `https://wa.me/919561271501?text=${encodeURIComponent(msg)}`;
+        const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
         if (waWindow) {
           waWindow.location.href = waUrl;
         } else {
