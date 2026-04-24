@@ -64,6 +64,11 @@ export function Login() {
             pincode
           });
 
+          // Connect pages locally to guarantee address carries over
+          localStorage.setItem('mango_checkout_form', JSON.stringify({
+            name, phone, address, pincode
+          }));
+
           // If user is immediately confirmed (no email verification), redirect now
           if (authData.session) {
             navigate(from, { replace: true });

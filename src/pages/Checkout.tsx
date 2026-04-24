@@ -15,12 +15,23 @@ export function Checkout() {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ name: '', phone: '', address: '', pincode: '' });
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem('mango_checkout_form');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return { name: '', phone: '', address: '', pincode: '' };
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentType, setPaymentType] = useState<'upi' | 'cod'>('upi');
   const [showQR, setShowQR] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
+
+  // Keep localStorage in sync with any form changes
+  useEffect(() => {
+    localStorage.setItem('mango_checkout_form', JSON.stringify(formData));
+  }, [formData]);
 
   // FIX: Wait until auth is done loading before fetching profile
   // authLoading=true means we don't know yet if user is logged in
@@ -31,12 +42,12 @@ export function Checkout() {
 
     getProfile(user.id).then((profile) => {
       if (profile) {
-        setFormData({
-          name: profile.name || '',
-          phone: profile.phone || '',
-          address: profile.address || '',
-          pincode: profile.pincode || '',
-        });
+        setFormData(prev => ({
+          name: prev.name || profile.name || '',
+          phone: prev.phone || profile.phone || '',
+          address: prev.address || profile.address || '',
+          pincode: prev.pincode || profile.pincode || '',
+        }));
       }
       setProfileLoaded(true);
     }).catch(err => {
@@ -56,16 +67,24 @@ export function Checkout() {
   // Standard UPI deeplink — works on mobile with GPay/PhonePe/Paytm
   const upiLink = `upi://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order`;
 
+  const gpayLink = `intent://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+
+  const phonepeLink = `intent://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order#Intent;scheme=upi;package=com.phonepe.app;end`;
+
+  const paytmLink = `intent://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order#Intent;scheme=upi;package=net.one97.paytm;end`;
+
   const handleConfirmOrder = async () => {
     if (!formData.name || !formData.phone || !formData.address) {
       alert('Please fill in your name, phone number, and delivery address.');
       return;
     }
-    const waWindow = window.open('', '_blank', 'noopener,noreferrer');
-    const { data: { session } } = await supabase.auth.getSession();
-    const currentUserId = session?.user?.id ?? 'guest';
+
     setIsSubmitting(true);
+
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUserId = session?.user?.id ?? 'guest';
+
       const id = await saveOrder({
         customer_id: currentUserId,
         customer_name: formData.name,
@@ -82,24 +101,23 @@ export function Checkout() {
         payment_type: paymentType,
         status: 'pending',
       });
+
       if (id) {
         setOrderId(id);
         clearCart();
+
         const shortId = id.slice(0, 8).toUpperCase();
-        const itemsSummary = cart.map(i => `${i.name}(${i.selectedWeight}kg x${i.quantity})`).join(', ');
-        const msg = `Hi! New Order 🥭 #${shortId} | ${itemsSummary} | ₹${cartTotal} | ${paymentType.toUpperCase()} | ${formData.name} | ${formData.phone}`;
-        const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
-        if (waWindow) {
-          waWindow.location.href = waUrl;
-        } else {
+        const itemsSummary = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
+        const msg = `Hi! New Order 🥭\nOrder ID: #${shortId}\nItems: ${itemsSummary}\nTotal: ₹${cartTotal}\nPayment: ${paymentType.toUpperCase()}\nName: ${formData.name}\nPhone: ${formData.phone}\nAddress: ${formData.address}, ${formData.pincode}`;
+        const waUrl = `https://wa.me/919561271501?text=${encodeURIComponent(msg)}`;
+
+        setTimeout(() => {
           window.open(waUrl, '_blank', 'noopener,noreferrer');
-        }
+        }, 500);
       } else {
-        waWindow?.close();
         alert('Could not save your order. Please try again.');
       }
     } catch (err) {
-      waWindow?.close();
       console.error('Order failed:', err);
       alert('Something went wrong. Please try again.');
     } finally {
@@ -276,14 +294,16 @@ export function Checkout() {
 
           {paymentType === 'upi' && (
             <div className="space-y-3">
-              <button
-                onClick={() => window.location.href = upiLink}
-                className="block w-full py-4 bg-green-500 text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  <Smartphone className="w-5 h-5" />
-                  Open GPay / PhonePe / Paytm
-                </span>
+              <button onClick={() => window.location.href = gpayLink} className="block w-full py-4 bg-[#1A73E8] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                Pay with GPay
+              </button>
+
+              <button onClick={() => window.location.href = phonepeLink} className="block w-full py-4 bg-[#5F259F] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                Pay with PhonePe
+              </button>
+
+              <button onClick={() => window.location.href = paytmLink} className="block w-full py-4 bg-[#00BAF2] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                Pay with Paytm
               </button>
               <p className="text-xs text-center text-[#1a1a1a]/40 font-bold">
                 ⚠️ UPI deep-link only works on mobile. Use QR below on desktop.
