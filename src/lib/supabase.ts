@@ -66,13 +66,24 @@ export async function getProfile(userId: string): Promise<Customer | null> {
     .eq('id', userId)
     .single();
 
-  if (error) { console.error('Error fetching profile:', error.message); return null; }
+  if (error) {
+    // PGRST116 = no row found — this is NOT an error, user just has no profile yet
+    if (error.code !== 'PGRST116') {
+      console.error('getProfile error:', { code: error.code, message: error.message, hint: error.hint });
+    }
+    return null;
+  }
   return data;
 }
 
 export async function updateProfile(userId: string, profile: Omit<Customer, 'id' | 'created_at'>): Promise<boolean> {
-  const { error } = await supabase.from('customers').upsert({ id: userId, ...profile });
-  if (error) { console.error('Error updating profile:', error.message); return false; }
+  const { error } = await supabase
+    .from('customers')
+    .upsert({ id: userId, ...profile }, { onConflict: 'id' });
+  if (error) {
+    console.error('updateProfile error:', { code: error.code, message: error.message, hint: error.hint });
+    return false;
+  }
   return true;
 }
 
