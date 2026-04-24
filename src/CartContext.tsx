@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Product } from './data';
 
@@ -21,8 +21,22 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const savedCart = localStorage.getItem('mangowala_cart');
+      if (savedCart) {
+        return JSON.parse(savedCart);
+      }
+    } catch (err) {
+      console.error('Error loading cart from local storage', err);
+    }
+    return [];
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('mangowala_cart', JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (product: Product, weight: number, quantity: number = 1) => {
     setCart((prev) => {
