@@ -42,7 +42,7 @@ export function Checkout() {
 
     getProfile(user.id).then((profile) => {
       if (profile) {
-        setFormData(prev => ({
+        setFormData((prev: { name: string; phone: string; address: string; pincode: string }) => ({
           name: prev.name || profile.name || '',
           phone: prev.phone || profile.phone || '',
           address: prev.address || profile.address || '',
@@ -59,7 +59,6 @@ export function Checkout() {
   if (!cart) return <div>Loading...</div>;
 
   const upiId = import.meta.env.VITE_UPI_ID || 'mfurniturewala2007@okicici';
-  const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919561271501';
 
   // Amount formatted to 2 decimal places (required by UPI spec)
   const upiAmount = cartTotal ? parseFloat(cartTotal as any).toFixed(2) : '1.00';
