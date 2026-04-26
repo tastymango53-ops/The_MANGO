@@ -72,6 +72,26 @@ export function Checkout() {
 
   const paytmLink = `intent://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order#Intent;scheme=upi;package=net.one97.paytm;end`;
 
+  const sendTelegramNotification = async (orderDetails: string) => {
+    const botToken = "8781436965:AAFC4Fwo_aehVts15GSsJQ90F oukHLbLGgM";
+    const chatId = "5898695862";
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: orderDetails,
+          parse_mode: "HTML"
+        })
+      });
+    } catch (err) {
+      console.error("Telegram notification failed:", err);
+    }
+  };
+
   const handleConfirmOrder = async () => {
     if (!formData.name || !formData.phone || !formData.address) {
       alert('Please fill in your name, phone number, and delivery address.');
@@ -107,6 +127,10 @@ export function Checkout() {
 
         const shortId = id.slice(0, 8).toUpperCase();
         const itemsSummary = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
+        const telegramMsg = `🥭 <b>New Order!</b>\n\n<b>Order ID:</b> #${shortId}\n<b>Items:</b> ${itemsSummary}\n<b>Total:</b> ₹${cartTotal}\n<b>Name:</b> ${formData.name}\n<b>Phone:</b> ${formData.phone}\n<b>Address:</b> ${formData.address}, ${formData.pincode}\n<b>Payment:</b> ${paymentType.toUpperCase()}`;
+
+        await sendTelegramNotification(telegramMsg);
+
         const msg = `Hi! New Order 🥭\nOrder ID: #${shortId}\nItems: ${itemsSummary}\nTotal: ₹${cartTotal}\nPayment: ${paymentType.toUpperCase()}\nName: ${formData.name}\nPhone: ${formData.phone}\nAddress: ${formData.address}, ${formData.pincode}`;
         const waUrl = `https://wa.me/919561271501?text=${encodeURIComponent(msg)}`;
 
