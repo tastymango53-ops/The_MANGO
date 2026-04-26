@@ -66,23 +66,21 @@ export function Checkout() {
 
   const paytmLink = `intent://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order#Intent;scheme=upi;package=net.one97.paytm;end`;
 
-  const sendTelegramNotification = async (orderDetails: string) => {
-    const botToken = "8781436965:AAFC4Fwo_aehVts15GSsJQ90F oukHLbLGgM";
+  const sendTelegramNotification = async (message: string) => {
+    const botToken = "8781436965:AAFC4Fwo_aehVts15GSsJQ90FoukHLbLGgM";
     const chatId = "5898695862";
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    
     try {
-      await fetch(url, {
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: orderDetails,
+          text: message,
           parse_mode: "HTML"
         })
       });
     } catch (err) {
-      console.error("Telegram notification failed:", err);
+      console.error("Telegram failed:", err);
     }
   };
 
@@ -121,16 +119,9 @@ export function Checkout() {
 
         const shortId = id.slice(0, 8).toUpperCase();
         const itemsSummary = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
-        const telegramMsg = `🥭 <b>New Order!</b>\n\n<b>Order ID:</b> #${shortId}\n<b>Items:</b> ${itemsSummary}\n<b>Total:</b> ₹${cartTotal}\n<b>Name:</b> ${formData.name}\n<b>Phone:</b> ${formData.phone}\n<b>Address:</b> ${formData.address}, ${formData.pincode}\n<b>Payment:</b> ${paymentType.toUpperCase()}`;
+        const message = `🥭 <b>New Order!</b>\n\n<b>Order ID:</b> #${shortId}\n<b>Items:</b> ${itemsSummary}\n<b>Total:</b> ₹${cartTotal}\n<b>Name:</b> ${formData.name}\n<b>Phone:</b> ${formData.phone}\n<b>Address:</b> ${formData.address}, ${formData.pincode}\n<b>Payment:</b> ${paymentType.toUpperCase()}`;
 
-        await sendTelegramNotification(telegramMsg);
-
-        const msg = `Hi! New Order 🥭\nOrder ID: #${shortId}\nItems: ${itemsSummary}\nTotal: ₹${cartTotal}\nPayment: ${paymentType.toUpperCase()}\nName: ${formData.name}\nPhone: ${formData.phone}\nAddress: ${formData.address}, ${formData.pincode}`;
-        const waUrl = `https://wa.me/919561271501?text=${encodeURIComponent(msg)}`;
-
-        setTimeout(() => {
-          window.open(waUrl, '_blank', 'noopener,noreferrer');
-        }, 500);
+        await sendTelegramNotification(message);
       } else {
         alert('Could not save your order. Please try again.');
       }
@@ -159,7 +150,7 @@ export function Checkout() {
           Order #{orderId.slice(0, 8).toUpperCase()}
         </p>
         <p className="text-[#1a1a1a]/50 max-w-sm mb-10">
-          WhatsApp has opened with your order details. We'll confirm shortly!
+          We'll confirm your order shortly!
         </p>
         {paymentType === 'upi' && (
           <div className="mb-6 w-full max-w-xs space-y-3">
@@ -367,9 +358,7 @@ export function Checkout() {
             `Confirm Order · ₹${(cartTotal ?? 0).toLocaleString()}`
           )}
         </button>
-        <p className="text-xs text-center mt-3 text-[#1a1a1a]/40 font-bold">
-          WhatsApp will open with your order details after confirmation.
-        </p>
+
       </div>
     </motion.div>
   );
