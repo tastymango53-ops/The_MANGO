@@ -67,7 +67,7 @@ export function Checkout() {
   const paytmLink = `intent://pay?pa=mfurniturewala2007@okicici&pn=Mango%20Store&am=${upiAmount}&cu=INR&tn=Mango%20Store%20Order#Intent;scheme=upi;package=net.one97.paytm;end`;
 
   const sendTelegramNotification = async (message: string) => {
-    const botToken = "8781436965:AAFC4Fwo_aehVts15GSsJQ90FoukHLbLGgM";
+    const botToken = "8742663223:AAGc92QDnHgzAiO6G-fUlJ8-T6WQyZqGLQs";
     const chatId = "5898695862";
     try {
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
