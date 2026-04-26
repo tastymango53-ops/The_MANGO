@@ -283,54 +283,59 @@ export function Checkout() {
         {/* Payment Method */}
         <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#FF6B00]/10 mb-6">
           <h2 className="text-lg font-black mb-5">Payment Method</h2>
-          {/* 
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <button
-              onClick={() => setPaymentType('upi')}
-              className={`py-4 px-4 rounded-2xl font-black flex flex-col items-center gap-2 border-2 transition-all ${paymentType === 'upi' ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-lg scale-[1.02]' : 'bg-[#FFF8F0] text-[#1a1a1a] border-[#FF6B00]/20 hover:border-[#FF6B00]/50'}`}
-            >
-              <CreditCard className="w-6 h-6" />
-              UPI / GPay
-            </button>
-            <button
-              onClick={() => setPaymentType('cod')}
-              className={`py-4 px-4 rounded-2xl font-black flex flex-col items-center gap-2 border-2 transition-all ${paymentType === 'cod' ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-lg scale-[1.02]' : 'bg-[#FFF8F0] text-[#1a1a1a] border-[#FF6B00]/20 hover:border-[#FF6B00]/50'}`}
-            >
-              <Truck className="w-6 h-6" />
-              Cash on Delivery
-            </button>
-          </div>
-          */}
+          {/* Hidden Selection - set to true to restore */}
+          {false && (
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <button
+                onClick={() => setPaymentType('upi')}
+                className={`py-4 px-4 rounded-2xl font-black flex flex-col items-center gap-2 border-2 transition-all ${paymentType === 'upi' ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-lg scale-[1.02]' : 'bg-[#FFF8F0] text-[#1a1a1a] border-[#FF6B00]/20 hover:border-[#FF6B00]/50'}`}
+              >
+                <CreditCard className="w-6 h-6" />
+                UPI / GPay
+              </button>
+              <button
+                onClick={() => setPaymentType('cod')}
+                className={`py-4 px-4 rounded-2xl font-black flex flex-col items-center gap-2 border-2 transition-all ${paymentType === 'cod' ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-lg scale-[1.02]' : 'bg-[#FFF8F0] text-[#1a1a1a] border-[#FF6B00]/20 hover:border-[#FF6B00]/50'}`}
+              >
+                <Truck className="w-6 h-6" />
+                Cash on Delivery
+              </button>
+            </div>
+          )}
 
           {paymentType === 'upi' && (
             <div className="space-y-3">
-              {/* 
-              <button onClick={() => window.location.href = gpayLink} className="block w-full py-4 bg-[#1A73E8] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
-                Pay with GPay
-              </button>
+              {/* Hidden Payment Options - set to true to restore */}
+              {false && (
+                <>
+                  <button onClick={() => window.location.href = gpayLink} className="block w-full py-4 bg-[#1A73E8] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                    Pay with GPay
+                  </button>
 
-              <button onClick={() => window.location.href = phonepeLink} className="block w-full py-4 bg-[#5F259F] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
-                Pay with PhonePe
-              </button>
+                  <button onClick={() => window.location.href = phonepeLink} className="block w-full py-4 bg-[#5F259F] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                    Pay with PhonePe
+                  </button>
 
-              <button onClick={() => window.location.href = paytmLink} className="block w-full py-4 bg-[#00BAF2] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
-                Pay with Paytm
-              </button>
-              */}
+                  <button onClick={() => window.location.href = paytmLink} className="block w-full py-4 bg-[#00BAF2] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                    Pay with Paytm
+                  </button>
+                </>
+              )}
 
               <p className="text-xs text-center text-[#1a1a1a]/40 font-bold">
                 ⚠️ UPI deep-link only works on mobile. Use QR below on desktop.
               </p>
 
-              {/* 
-              <button
-                onClick={() => setShowQR(!showQR)}
-                className="w-full py-3 bg-[#FFF8F0] border-2 border-[#FF6B00]/20 rounded-2xl font-bold text-[#1a1a1a] flex items-center justify-center gap-2 hover:border-[#FF6B00]/50 transition-all"
-              >
-                <QrCode className="w-5 h-5 text-[#FF6B00]" />
-                {showQR ? 'Hide QR Code' : 'Show QR Code'}
-              </button>
-              */}
+              {/* Hidden QR Toggle - set to true to restore */}
+              {false && (
+                <button
+                  onClick={() => setShowQR(!showQR)}
+                  className="w-full py-3 bg-[#FFF8F0] border-2 border-[#FF6B00]/20 rounded-2xl font-bold text-[#1a1a1a] flex items-center justify-center gap-2 hover:border-[#FF6B00]/50 transition-all"
+                >
+                  <QrCode className="w-5 h-5 text-[#FF6B00]" />
+                  {showQR ? 'Hide QR Code' : 'Show QR Code'}
+                </button>
+              )}
               {showQR && (
                 <div className="flex flex-col items-center py-4">
                   <div className="bg-white p-4 rounded-3xl shadow-inner border-4 border-[#FFD700]/30">
