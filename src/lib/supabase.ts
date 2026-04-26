@@ -96,7 +96,10 @@ export async function saveOrder(order: Omit<Order, 'id' | 'created_at'>): Promis
     .select('id')
     .single();
 
-  if (error) { console.error('Error saving order:', error.message); return null; }
+  if (error) {
+    console.error('Error saving order:', error.message, error.details, error.hint);
+    return null;
+  }
   return data?.id ?? null;
 }
 

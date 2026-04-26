@@ -33,28 +33,22 @@ export function Checkout() {
     localStorage.setItem('mango_checkout_form', JSON.stringify(formData));
   }, [formData]);
 
-  // FIX: Wait until auth is done loading before fetching profile
-  // authLoading=true means we don't know yet if user is logged in
   useEffect(() => {
-    if (authLoading) return; // wait for auth to resolve
-    if (!user) return;       // not logged in
-    if (profileLoaded) return; // already loaded once
-
-    getProfile(user.id).then((profile) => {
+    const loadProfile = async () => {
+      if (!user || profileLoaded) return;
+      const profile = await getProfile(user.id);
       if (profile) {
-        setFormData((prev: { name: string; phone: string; address: string; pincode: string }) => ({
-          name: prev.name || profile.name || '',
-          phone: prev.phone || profile.phone || '',
-          address: prev.address || profile.address || '',
-          pincode: prev.pincode || profile.pincode || '',
-        }));
+        setFormData({
+          name: profile.name || '',
+          phone: profile.phone || '',
+          address: profile.address || '',
+          pincode: profile.pincode || '',
+        });
+        setProfileLoaded(true);
       }
-      setProfileLoaded(true);
-    }).catch(err => {
-      console.error('getProfile failed:', err);
-      setProfileLoaded(true);
-    });
-  }, [user, authLoading, profileLoaded]);
+    };
+    loadProfile();
+  }, [user]);
 
   if (!cart) return <div>Loading...</div>;
 
