@@ -152,7 +152,8 @@ export function Checkout() {
         <p className="text-[#1a1a1a]/50 max-w-sm mb-10">
           We'll confirm your order shortly!
         </p>
-        {paymentType === 'upi' && (
+        {/* Hidden Mobile UPI Button - set to true to restore */}
+        {false && paymentType === 'upi' && (
           <div className="mb-6 w-full max-w-xs space-y-3">
             <button
               onClick={() => window.location.href = upiLink}
