@@ -316,9 +316,13 @@ export function Checkout() {
               <button onClick={() => window.location.href = paytmLink} className="block w-full py-4 bg-[#00BAF2] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
                 Pay with Paytm
               </button>
+              */}
+
               <p className="text-xs text-center text-[#1a1a1a]/40 font-bold">
                 ⚠️ UPI deep-link only works on mobile. Use QR below on desktop.
               </p>
+
+              {/* 
               <button
                 onClick={() => setShowQR(!showQR)}
                 className="w-full py-3 bg-[#FFF8F0] border-2 border-[#FF6B00]/20 rounded-2xl font-bold text-[#1a1a1a] flex items-center justify-center gap-2 hover:border-[#FF6B00]/50 transition-all"
