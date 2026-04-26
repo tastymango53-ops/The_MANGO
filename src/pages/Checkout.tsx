@@ -25,7 +25,7 @@ export function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentType, setPaymentType] = useState<'upi' | 'cod'>('upi');
-  const [showQR, setShowQR] = useState(false);
+  const [showQR, setShowQR] = useState(true);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Keep localStorage in sync with any form changes
@@ -283,6 +283,7 @@ export function Checkout() {
         {/* Payment Method */}
         <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#FF6B00]/10 mb-6">
           <h2 className="text-lg font-black mb-5">Payment Method</h2>
+          {/* 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <button
               onClick={() => setPaymentType('upi')}
@@ -299,9 +300,11 @@ export function Checkout() {
               Cash on Delivery
             </button>
           </div>
+          */}
 
           {paymentType === 'upi' && (
             <div className="space-y-3">
+              {/* 
               <button onClick={() => window.location.href = gpayLink} className="block w-full py-4 bg-[#1A73E8] text-white text-center rounded-2xl font-black shadow-lg hover:opacity-90 active:scale-95 transition-all">
                 Pay with GPay
               </button>
@@ -323,6 +326,7 @@ export function Checkout() {
                 <QrCode className="w-5 h-5 text-[#FF6B00]" />
                 {showQR ? 'Hide QR Code' : 'Show QR Code'}
               </button>
+              */}
               {showQR && (
                 <div className="flex flex-col items-center py-4">
                   <div className="bg-white p-4 rounded-3xl shadow-inner border-4 border-[#FFD700]/30">
