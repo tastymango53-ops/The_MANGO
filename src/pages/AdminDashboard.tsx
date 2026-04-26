@@ -73,7 +73,7 @@ export function AdminDashboard() {
   const totalOrders = orders.length;
   const upiCount = orders.filter((o) => o.payment_type === 'upi').length;
   const codCount = orders.filter((o) => o.payment_type === 'cod').length;
-  const totalRevenue = orders.reduce((sum, o) => sum + o.amount, 0);
+  const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
 
   if (isLoading || loading) {
     return (
@@ -171,7 +171,7 @@ export function AdminDashboard() {
                               {order.items.map(i => `${i.name} (${i.selectedWeight}kg×${i.quantity})`).join(', ')}
                             </p>
                           </td>
-                          <td className="px-5 py-4 font-black text-[#1a1a1a]">₹{order.amount.toLocaleString()}</td>
+                          <td className="px-5 py-4 font-black text-[#1a1a1a]">₹{order.total.toLocaleString()}</td>
                           <td className="px-5 py-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-black uppercase ${order.payment_type === 'upi' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                               {order.payment_type}
@@ -225,7 +225,7 @@ export function AdminDashboard() {
                       </p>
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-xl font-black text-[#1a1a1a]">₹{order.amount.toLocaleString()}</span>
+                           <span className="text-xl font-black text-[#1a1a1a]">₹{order.total.toLocaleString()}</span>
                           <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-black ${order.payment_type === 'upi' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                             {order.payment_type.toUpperCase()}
                           </span>

@@ -39,7 +39,7 @@ export type Order = {
   phone: string;
   address: string;
   items: OrderItem[];
-  amount: number;
+  total: number;
   payment_type: 'upi' | 'cod';
   status?: 'pending' | 'confirmed' | 'shipped' | 'delivered';
   created_at?: string;

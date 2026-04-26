@@ -110,7 +110,7 @@ export function Checkout() {
           quantity: item.quantity,
           selectedWeight: item.selectedWeight,
         })),
-        amount: cartTotal,
+        total: cartTotal,
         payment_type: paymentType,
         status: 'pending',
       });

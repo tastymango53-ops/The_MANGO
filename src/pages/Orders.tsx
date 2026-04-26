@@ -91,7 +91,7 @@ export function Orders() {
                   </div>
                   <div>
                     <p className="text-xs font-black text-mango-dark uppercase tracking-widest mb-1">Total</p>
-                    <p className="text-xl font-black text-leaf-dark">₹{order.amount.toLocaleString()}</p>
+                    <p className="text-xl font-black text-leaf-dark">₹{order.total.toLocaleString()}</p>
                   </div>
                   <div className={clsx(
                     "px-6 py-2 rounded-full font-black text-sm uppercase tracking-wider",
