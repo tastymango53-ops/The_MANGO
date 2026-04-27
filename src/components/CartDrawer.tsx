@@ -103,8 +103,12 @@ export const CartDrawer = () => {
                           Remove
                         </button>
                       </div>
-                      <p className="text-xs font-black text-mango-dark uppercase">{item.selectedWeight}kg Pack</p>
-                      <p className="text-leaf-dark font-semibold">₹{(item.price * item.selectedWeight).toLocaleString()}</p>
+                      <p className="text-xs font-black text-mango-dark uppercase">
+                        {item.selectedWeight < 0
+                          ? `${Math.abs(item.selectedWeight)} Dozen`
+                          : `${item.selectedWeight}kg Pack`}
+                      </p>
+                      <p className="text-leaf-dark font-semibold">₹{(item.price * Math.abs(item.selectedWeight)).toLocaleString()}</p>
                     </div>
                     
                     <div className="flex items-center justify-between mt-4">

@@ -77,7 +77,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = () => setCart([]);
 
   // Price calculation: basePrice * weight * quantity
-  const cartTotal = cart.reduce((total, item) => total + (item.price * item.selectedWeight * item.quantity), 0);
+  const cartTotal = cart.reduce((total, item) => total + (item.price * Math.abs(item.selectedWeight) * item.quantity), 0);
 
   return (
     <CartContext.Provider

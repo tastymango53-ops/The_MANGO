@@ -150,10 +150,17 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [editForm, setEditForm] = useState({ name: '', price: '', image: '', description: '', unit: 'kg' });
-  const [newForm, setNewForm] = useState({ name: '', price: '', image: '', description: '', unit: 'kg' });
+  const [editForm, setEditForm] = useState({ name: '', price: '', description: '' });
+  const [newForm, setNewForm] = useState({ name: '', price: '', description: '' });
   const [newImages, setNewImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
+  // Unit & options (negative numbers = dozens encoding)
+  const [newUnit, setNewUnit] = useState<'kg' | 'dozen'>('kg');
+  const [newOptions, setNewOptions] = useState<number[]>([1, 2, 5]);
+  const [newOptionInput, setNewOptionInput] = useState('');
+  const [editUnit, setEditUnit] = useState<'kg' | 'dozen'>('kg');
+  const [editOptions, setEditOptions] = useState<number[]>([1, 2, 5]);
+  const [editOptionInput, setEditOptionInput] = useState('');
 
   // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -194,17 +201,25 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
     }
   };
 
-  // ── Inventory functions ──────────────────────────────────────────────────────
+  // ── Inventory helpers ────────────────────────────────────────────────────────
+  // Encoding: positive numbers = kg, negative numbers = dozens
+  const encodeOptions = (opts: number[], unit: 'kg' | 'dozen') =>
+    unit === 'dozen' ? opts.map(v => -Math.abs(v)) : opts.map(v => Math.abs(v));
+
+  const decodeOptions = (opts: number[]) => {
+    if (!opts || opts.length === 0) return { unit: 'kg' as const, values: [1, 2, 5] };
+    const isDozen = opts[0] < 0;
+    return { unit: (isDozen ? 'dozen' : 'kg') as 'kg' | 'dozen', values: opts.map(v => Math.abs(v)) };
+  };
+
   const startEdit = (product: Product) => {
     setEditingId(product.id);
-    setEditForm({
-      name: product.name,
-      price: String(product.price),
-      image: product.image,
-      description: product.description || '',
-      unit: (product as any).unit || 'kg',
-    });
+    setEditForm({ name: product.name, price: String(product.price), description: product.description || '' });
     setEditImages((product as any).images || (product.image ? [product.image] : []));
+    const decoded = decodeOptions(product.weightOptions || []);
+    setEditUnit(decoded.unit);
+    setEditOptions(decoded.values);
+    setEditOptionInput('');
   };
 
   const saveEdit = async (id: string) => {
@@ -216,6 +231,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
         price: Number(editForm.price),
         image: editImages[0] || '',
         description: editForm.description,
+        weightOptions: encodeOptions(editOptions, editUnit),
       });
       setEditingId(null);
     } finally {
@@ -232,9 +248,13 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
         price: Number(newForm.price),
         image: newImages[0] || '',
         description: newForm.description,
+        weightOptions: encodeOptions(newOptions, newUnit),
       });
-      setNewForm({ name: '', price: '', image: '', description: '', unit: 'kg' });
+      setNewForm({ name: '', price: '', description: '' });
       setNewImages([]);
+      setNewUnit('kg');
+      setNewOptions([1, 2, 5]);
+      setNewOptionInput('');
       setIsAdding(false);
     } finally {
       setIsSaving(false);
@@ -588,11 +608,67 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                 <h3 className="font-black text-[#4C1D95] mb-4">New Mango</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <input placeholder="Name" value={newForm.name} onChange={e => setNewForm({...newForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
-                  <div className="relative">
-                    <input placeholder="Price per kg (₹)" type="number" value={newForm.price} onChange={e => setNewForm({...newForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm w-full" />
-                  </div>
+                  <input
+                    placeholder={`Price per ${newUnit === 'dozen' ? 'dozen' : 'kg'} (₹)`}
+                    type="number" value={newForm.price}
+                    onChange={e => setNewForm({...newForm, price: e.target.value})}
+                    className="border rounded-xl px-3 py-2 text-sm"
+                  />
                   <ImageUploader images={newImages} setImages={setNewImages} />
                   <input placeholder="Description" value={newForm.description} onChange={e => setNewForm({...newForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+
+                  {/* Unit toggle */}
+                  <div className="col-span-2">
+                    <p className="text-xs font-bold text-[#4C1D95] mb-2">Sell in</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setNewUnit('kg'); setNewOptions([1, 2, 5]); }}
+                        className={`px-4 py-1.5 rounded-xl text-sm font-bold cursor-pointer transition-colors ${
+                          newUnit === 'kg' ? 'bg-[#7C3AED] text-white' : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >Kg</button>
+                      <button
+                        onClick={() => { setNewUnit('dozen'); setNewOptions([1, 2, 3]); }}
+                        className={`px-4 py-1.5 rounded-xl text-sm font-bold cursor-pointer transition-colors ${
+                          newUnit === 'dozen' ? 'bg-[#F97316] text-white' : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >Dozen</button>
+                    </div>
+                  </div>
+
+                  {/* Options editor */}
+                  <div className="col-span-2">
+                    <p className="text-xs font-bold text-[#4C1D95] mb-2">
+                      Customer sees these {newUnit === 'dozen' ? 'dozen' : 'kg'} options:
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {newOptions.map((opt, i) => (
+                        <span key={i} className="flex items-center gap-1 bg-[#7C3AED]/10 text-[#4C1D95] px-3 py-1 rounded-full text-sm font-bold">
+                          {opt} {newUnit === 'dozen' ? 'dozen' : 'kg'}
+                          <button onClick={() => setNewOptions(newOptions.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 ml-1 cursor-pointer">×</button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="number" min="0.5" step="0.5"
+                        placeholder={`Add ${newUnit === 'dozen' ? 'dozen' : 'kg'} option`}
+                        value={newOptionInput}
+                        onChange={e => setNewOptionInput(e.target.value)}
+                        className="border rounded-xl px-3 py-1.5 text-sm flex-1"
+                      />
+                      <button
+                        onClick={() => {
+                          const v = parseFloat(newOptionInput);
+                          if (!isNaN(v) && v > 0 && !newOptions.includes(v)) {
+                            setNewOptions([...newOptions, v].sort((a, b) => a - b));
+                            setNewOptionInput('');
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-[#7C3AED] text-white rounded-xl text-sm font-bold cursor-pointer hover:opacity-90"
+                      >+ Add</button>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex gap-2 mt-4">
                   <button onClick={saveNew} disabled={isSaving} className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 disabled:opacity-50">{isSaving ? 'Saving...' : 'Save'}</button>
@@ -612,7 +688,12 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                     </div>
                     <div>
                       <h3 className="font-black text-[#4C1D95]">{product.name}</h3>
-                      <p className="text-[#F97316] font-bold">₹{product.price}/{(product as any).unit || 'kg'}</p>
+                      <p className="text-[#F97316] font-bold">
+                        ₹{product.price}/{(() => { const d = decodeOptions(product.weightOptions || []); return d.unit === 'dozen' ? 'dozen' : 'kg'; })()}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {(() => { const d = decodeOptions(product.weightOptions || []); return d.values.map(v => `${v}${d.unit === 'dozen' ? ' doz' : 'kg'}`).join(', '); })()}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -629,11 +710,67 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                   <div className="border-t border-gray-100 p-4 bg-[#FAF5FF]">
                     <div className="grid grid-cols-2 gap-3">
                       <input placeholder="Name" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
-                      <div className="relative">
-                        <input placeholder="Price per kg (₹)" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm w-full" />
-                      </div>
+                      <input
+                        placeholder={`Price per ${editUnit === 'dozen' ? 'dozen' : 'kg'} (₹)`}
+                        type="number" value={editForm.price}
+                        onChange={e => setEditForm({...editForm, price: e.target.value})}
+                        className="border rounded-xl px-3 py-2 text-sm"
+                      />
                       <ImageUploader images={editImages} setImages={setEditImages} />
                       <input placeholder="Description" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+
+                      {/* Unit toggle */}
+                      <div className="col-span-2">
+                        <p className="text-xs font-bold text-[#4C1D95] mb-2">Sell in</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => { setEditUnit('kg'); setEditOptions([1, 2, 5]); }}
+                            className={`px-4 py-1.5 rounded-xl text-sm font-bold cursor-pointer transition-colors ${
+                              editUnit === 'kg' ? 'bg-[#7C3AED] text-white' : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >Kg</button>
+                          <button
+                            onClick={() => { setEditUnit('dozen'); setEditOptions([1, 2, 3]); }}
+                            className={`px-4 py-1.5 rounded-xl text-sm font-bold cursor-pointer transition-colors ${
+                              editUnit === 'dozen' ? 'bg-[#F97316] text-white' : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >Dozen</button>
+                        </div>
+                      </div>
+
+                      {/* Options editor */}
+                      <div className="col-span-2">
+                        <p className="text-xs font-bold text-[#4C1D95] mb-2">
+                          Customer sees these {editUnit === 'dozen' ? 'dozen' : 'kg'} options:
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {editOptions.map((opt, i) => (
+                            <span key={i} className="flex items-center gap-1 bg-[#7C3AED]/10 text-[#4C1D95] px-3 py-1 rounded-full text-sm font-bold">
+                              {opt} {editUnit === 'dozen' ? 'dozen' : 'kg'}
+                              <button onClick={() => setEditOptions(editOptions.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 ml-1 cursor-pointer">×</button>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="number" min="0.5" step="0.5"
+                            placeholder={`Add ${editUnit === 'dozen' ? 'dozen' : 'kg'} option`}
+                            value={editOptionInput}
+                            onChange={e => setEditOptionInput(e.target.value)}
+                            className="border rounded-xl px-3 py-1.5 text-sm flex-1"
+                          />
+                          <button
+                            onClick={() => {
+                              const v = parseFloat(editOptionInput);
+                              if (!isNaN(v) && v > 0 && !editOptions.includes(v)) {
+                                setEditOptions([...editOptions, v].sort((a, b) => a - b));
+                                setEditOptionInput('');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-[#7C3AED] text-white rounded-xl text-sm font-bold cursor-pointer hover:opacity-90"
+                          >+ Add</button>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex gap-2 mt-4">
                       <button onClick={() => saveEdit(product.id)} disabled={isSaving} className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 disabled:opacity-50">{isSaving ? 'Saving...' : 'Save'}</button>

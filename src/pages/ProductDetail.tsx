@@ -30,7 +30,9 @@ export function ProductDetail() {
 
   if (!product) return null;
 
-  const totalPrice = product.price * selectedWeight * quantity;
+  // Negative weightOptions = dozens; positive = kg
+  const isDozenProduct = (product.weightOptions || []).length > 0 && product.weightOptions![0] < 0;
+  const totalPrice = product.price * Math.abs(selectedWeight) * quantity;
 
   const handleAddToCart = () => {
     addToCart(product, selectedWeight, quantity);
@@ -95,9 +97,11 @@ export function ProductDetail() {
                 </div>
               </div>
 
-              {/* Weight Selector */}
+              {/* Weight / Dozen Selector */}
               <div>
-                <h3 className="text-lg font-black text-dark mb-3 uppercase tracking-wider">Select Weight</h3>
+                <h3 className="text-lg font-black text-dark mb-3 uppercase tracking-wider">
+                  {isDozenProduct ? 'Select Quantity' : 'Select Weight'}
+                </h3>
                 <div className="flex gap-4">
                   {(product.weightOptions || [1, 2, 5]).map((weight: number) => (
                     <button
@@ -105,12 +109,12 @@ export function ProductDetail() {
                       onClick={() => setSelectedWeight(weight)}
                       className={clsx(
                         "flex-1 py-3 px-4 rounded-2xl font-black transition-all border-2",
-                        selectedWeight === weight 
-                          ? "bg-mango text-white border-mango shadow-lg scale-105" 
+                        selectedWeight === weight
+                          ? "bg-mango text-white border-mango shadow-lg scale-105"
                           : "bg-white text-dark border-mango/10 hover:border-mango/30"
                       )}
                     >
-                      {weight}kg
+                      {weight < 0 ? `${Math.abs(weight)} Dozen` : `${weight}kg`}
                     </button>
                   ))}
                 </div>
