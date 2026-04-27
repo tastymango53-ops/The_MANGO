@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import emailjs from '@emailjs/browser';
+import { init, send } from '@emailjs/browser';
 
 export function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -30,6 +30,8 @@ export function Checkout() {
   const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Keep localStorage in sync with any form changes
+  useEffect(() => { init('B2JhHhac53YyZ7QXt'); }, []);
+
   useEffect(() => {
     localStorage.setItem('mango_checkout_form', JSON.stringify(formData));
   }, [formData]);
@@ -88,8 +90,8 @@ export function Checkout() {
   const sendAdminEmail = async (orderId: string) => {
     try {
       const shortId = orderId.slice(0, 8).toUpperCase();
-      const itemsSummary = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
-      await emailjs.send(
+      const itemsSummary = cart.map((i: any) => `${i.name} x${i.quantity}`).join(', ');
+      await send(
         'service_odgq3zg',
         'template_nfh73mo',
         {
@@ -100,9 +102,9 @@ export function Checkout() {
           items: itemsSummary,
           total: cartTotal,
           payment_type: paymentType.toUpperCase(),
-        },
-        'B2JhHhac53YyZ7QXt'
+        }
       );
+      console.log('Admin email sent');
     } catch (err) {
       console.error('Admin email failed:', err);
     }
