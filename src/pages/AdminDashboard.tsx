@@ -90,7 +90,7 @@ function AnimatedCounter({ value, isCurrency = false }: { value: number, isCurre
   return <span ref={nodeRef}>{isCurrency ? `₹0` : `0`}</span>;
 }
 
-export function AdminDashboard() {
+export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -204,7 +204,7 @@ export function AdminDashboard() {
               MangoWala Admin
             </h1>
           </div>
-          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-[#4C1D95]/60 hidden md:block">{user?.email}</span>
             <button
               onClick={signOut}
@@ -213,6 +213,14 @@ export function AdminDashboard() {
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
             </button>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="text-white bg-red-500 px-4 py-2 rounded-xl font-bold cursor-pointer hover:bg-red-600 transition-colors"
+              >
+                Close
+              </button>
+            )}
           </div>
         </div>
       </div>

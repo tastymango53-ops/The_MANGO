@@ -6,7 +6,7 @@ import { Header } from './components/Header';
 import { AppRoutes } from './AppRoutes';
 import { CartDrawer } from './components/CartDrawer';
 import { Footer } from './components/Footer';
-import { AdminPanel } from './components/AdminPanel';
+import { AdminDashboard } from './pages/AdminDashboard';
 import { FallingLeaves } from './components/FallingLeaves';
 import { PasswordPrompt } from './components/PasswordPrompt';
 
@@ -34,7 +34,11 @@ function App() {
                 onCancel={() => setIsPromptOpen(false)} 
               />
             )}
-            {isAdminOpen && <AdminPanel onClose={() => setIsAdminOpen(false)} />}
+            {isAdminOpen && (
+              <div className="fixed inset-0 z-50 bg-white overflow-auto">
+                <AdminDashboard onClose={() => setIsAdminOpen(false)} />
+              </div>
+            )}
           </div>
         </CartProvider>
       </ProductProvider>
