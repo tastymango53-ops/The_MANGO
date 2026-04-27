@@ -6,7 +6,7 @@ import type { Product } from '../context/ProductContext';
 import {
   ShoppingBag, Truck, CheckCircle,
   Clock, Package, RefreshCw, Search, ChevronDown, ChevronUp,
-  MapPin, Phone, ShoppingCart, User, CreditCard, Pencil, Trash2
+  MapPin, Phone, ShoppingCart, User, CreditCard, Pencil, Trash2, Plus
 } from 'lucide-react';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import emailjs from '@emailjs/browser';
@@ -67,6 +67,54 @@ const notifyTelegram = async (message: string) => {
   }
 };
 
+// ── Supabase Storage upload helper ─────────────────────────────────────────────
+const uploadImage = async (file: File): Promise<string | null> => {
+  const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(fileName, file, { upsert: true });
+  if (error) { console.error('Upload error:', error.message); return null; }
+  const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+  return data.publicUrl;
+};
+
+// ── Reusable image uploader UI ─────────────────────────────────────────────
+const ImageUploader = ({ images, setImages }: { images: string[], setImages: (imgs: string[]) => void }) => {
+  const [uploading, setUploading] = useState(false);
+  const handleFiles = async (files: FileList | null) => {
+    if (!files) return;
+    setUploading(true);
+    const urls: string[] = [];
+    for (const file of Array.from(files)) {
+      const url = await uploadImage(file);
+      if (url) urls.push(url);
+    }
+    setImages([...images, ...urls]);
+    setUploading(false);
+  };
+  return (
+    <div className="col-span-2 space-y-2">
+      <label className="block text-sm font-bold text-[#4C1D95]">Product Photos</label>
+      <div className="flex flex-wrap gap-2">
+        {images.map((url, i) => (
+          <div key={i} className="relative w-20 h-20">
+            <img src={url} className="w-20 h-20 object-cover rounded-xl border border-gray-200" />
+            <button
+              onClick={() => setImages(images.filter((_, j) => j !== i))}
+              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center cursor-pointer hover:bg-red-600"
+            >×</button>
+          </div>
+        ))}
+        <label className={`w-20 h-20 border-2 border-dashed border-[#7C3AED]/40 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#7C3AED] transition-colors ${uploading ? 'opacity-50' : ''}`}>
+          <input type="file" accept="image/*" multiple className="hidden" onChange={e => handleFiles(e.target.files)} disabled={uploading} />
+          {uploading ? <RefreshCw className="w-5 h-5 text-[#7C3AED] animate-spin" /> : <Plus className="w-5 h-5 text-[#7C3AED]" />}
+          <span className="text-xs text-[#7C3AED] mt-1">{uploading ? 'Uploading' : 'Add Photo'}</span>
+        </label>
+      </div>
+    </div>
+  );
+};
+
 function AnimatedCounter({ value, isCurrency = false }: { value: number, isCurrency?: boolean }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
   const prevValue = useRef(0);
@@ -104,6 +152,8 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', price: '', image: '', description: '', unit: 'kg' });
   const [newForm, setNewForm] = useState({ name: '', price: '', image: '', description: '', unit: 'kg' });
+  const [newImages, setNewImages] = useState<string[]>([]);
+  const [editImages, setEditImages] = useState<string[]>([]);
 
   // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -154,6 +204,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
       description: product.description || '',
       unit: (product as any).unit || 'kg',
     });
+    setEditImages((product as any).images || (product.image ? [product.image] : []));
   };
 
   const saveEdit = async (id: string) => {
@@ -163,7 +214,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
       await editProduct(id, {
         name: editForm.name,
         price: Number(editForm.price),
-        image: editForm.image,
+        image: editImages[0] || '',
         description: editForm.description,
       });
       setEditingId(null);
@@ -179,10 +230,11 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
       await addProduct({
         name: newForm.name,
         price: Number(newForm.price),
-        image: newForm.image,
+        image: newImages[0] || '',
         description: newForm.description,
       });
       setNewForm({ name: '', price: '', image: '', description: '', unit: 'kg' });
+      setNewImages([]);
       setIsAdding(false);
     } finally {
       setIsSaving(false);
@@ -537,7 +589,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                 <div className="grid grid-cols-2 gap-3">
                   <input placeholder="Name" value={newForm.name} onChange={e => setNewForm({...newForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
                   <input placeholder="Price" type="number" value={newForm.price} onChange={e => setNewForm({...newForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
-                  <input placeholder="Image URL" value={newForm.image} onChange={e => setNewForm({...newForm, image: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+                  <ImageUploader images={newImages} setImages={setNewImages} />
                   <input placeholder="Description" value={newForm.description} onChange={e => setNewForm({...newForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
                   <div className="col-span-2 flex items-center gap-3">
                     <span className="text-sm font-bold text-[#4C1D95]">Sell in:</span>
@@ -562,7 +614,11 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
               <div key={product.id} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
                 <div className="flex items-center justify-between p-4">
                   <div className="flex items-center gap-4">
-                    <img src={product.image} alt={product.name} className="w-16 h-16 rounded-xl object-contain bg-gray-50" />
+                    <div className="flex gap-1 overflow-x-auto max-w-[120px]">
+                      {((product as any).images?.length ? (product as any).images : [product.image]).map((url: string, i: number) => (
+                        <img key={i} src={url} alt={product.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                      ))}
+                    </div>
                     <div>
                       <h3 className="font-black text-[#4C1D95]">{product.name}</h3>
                       <p className="text-[#F97316] font-bold">₹{product.price}/{(product as any).unit || 'kg'}</p>
@@ -583,7 +639,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                     <div className="grid grid-cols-2 gap-3">
                       <input placeholder="Name" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
                       <input placeholder="Price" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
-                      <input placeholder="Image URL" value={editForm.image} onChange={e => setEditForm({...editForm, image: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+                      <ImageUploader images={editImages} setImages={setEditImages} />
                       <input placeholder="Description" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
                       <div className="col-span-2 flex items-center gap-3">
                         <span className="text-sm font-bold text-[#4C1D95]">Sell in:</span>
