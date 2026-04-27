@@ -52,15 +52,15 @@ export const Footer = ({ onOpenAdmin }: FooterProps) => {
       <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-offwhite/10 flex flex-col sm:flex-row justify-center items-center gap-4 relative text-offwhite/50 text-sm text-center">
         <span>&copy; {new Date().getFullYear()} MangoWala. All rights reserved.</span>
         
-        {/* Hidden Mango Control Panel trigger */}
+        {/* Admin Panel trigger */}
         {onOpenAdmin && (
           <button 
             onClick={onOpenAdmin}
-            className="sm:absolute right-0 relative sm:mt-0 mt-4 opacity-20 hover:opacity-100 transition-opacity p-2 text-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-mango-light rounded-full"
+            className="sm:absolute right-0 relative sm:mt-0 mt-4 px-3 py-1 text-xs font-bold text-offwhite/50 hover:text-mango border border-offwhite/20 hover:border-mango rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-mango-light cursor-pointer"
             aria-label="Admin Access"
-            title="Secret Control Panel"
+            title="Admin Panel"
           >
-            🥭
+            Admin
           </button>
         )}
       </div>
