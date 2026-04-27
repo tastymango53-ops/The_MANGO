@@ -153,7 +153,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
     return matchesFilter && matchesSearch;
   });
 
-  if (isLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF5FF] font-['Fira_Sans',_sans-serif]">
         <div className="bg-white shadow-sm sticky top-0 z-50 h-[73px] border-b border-[#A78BFA]/20" />
