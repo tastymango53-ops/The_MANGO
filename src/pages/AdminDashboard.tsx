@@ -1,17 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { supabase, getAllOrders, updateOrderStatus } from '../lib/supabase';
 import type { Order } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
 import {
   ShoppingBag, Truck, CheckCircle,
-  Clock, Package, RefreshCw, LogOut, Search, ChevronDown, ChevronUp,
+  Clock, Package, RefreshCw, Search, ChevronDown, ChevronUp,
   MapPin, Phone, ShoppingCart, User, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import emailjs from '@emailjs/browser';
-
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@mangowala.com';
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending',   color: 'bg-yellow-100 text-yellow-800 border-yellow-500',  icon: Clock },
@@ -91,8 +87,6 @@ function AnimatedCounter({ value, isCurrency = false }: { value: number, isCurre
 }
 
 export function AdminDashboard({ onClose }: { onClose?: () => void }) {
-  const { user, signOut, isLoading } = useAuth();
-  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -100,28 +94,13 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isLoading && (!user || user.email !== ADMIN_EMAIL)) {
-      if (onClose) {
-        onClose(); // dismiss overlay and stay on current page
-      } else {
-        navigate('/login');
-      }
-    }
-  }, [user, isLoading, navigate, onClose]);
-
   // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (isLoading) return; // wait for auth to resolve
-    if (user?.email !== ADMIN_EMAIL) { setLoading(false); return; }
     getAllOrders().then((data) => { setOrders(data); setLoading(false); });
-  }, [user, isLoading]);
+  }, []);
 
   // ── Realtime subscription ───────────────────────────────────────────────────
   useEffect(() => {
-    if (user?.email !== ADMIN_EMAIL) return;
-
     const channel = supabase
       .channel('orders-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, (payload) => {
@@ -133,7 +112,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, []);
 
   const handleStatusUpdate = async (order: Order, currentStatus: string) => {
     const next = NEXT_STATUS[currentStatus];
@@ -209,15 +188,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
               MangoWala Admin
             </h1>
           </div>
-            <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-[#4C1D95]/60 hidden md:block">{user?.email}</span>
-            <button
-              onClick={signOut}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold transition-all duration-300 cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
+          <div className="flex items-center gap-3">
             {onClose && (
               <button
                 onClick={onClose}
