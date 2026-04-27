@@ -309,8 +309,8 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
           </button>
         </div>
 
-        {activeTab === 'orders' && orders.length === 0 ? (
-          <motion.div 
+        {activeTab === 'orders' && orders.length === 0 && (
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl shadow-md p-16 text-center border border-[#A78BFA]/20"
@@ -321,7 +321,9 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
             <h2 className="text-2xl font-bold text-[#4C1D95] mb-2">No orders yet</h2>
             <p className="text-[#4C1D95]/60 max-w-md mx-auto">When customers place orders, they will appear here in real-time.</p>
           </motion.div>
-        ) : (
+        )}
+
+        {activeTab === 'orders' && orders.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -514,7 +516,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
               </div>
             </div>
           </motion.div>
-        ) : null}
+        )}
 
         {/* ── Inventory Tab ──────────────────────────────────────────────── */}
         {activeTab === 'inventory' && (
