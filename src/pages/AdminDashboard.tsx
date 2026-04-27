@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ShoppingBag, Truck, CheckCircle,
   Clock, Package, RefreshCw, LogOut, Search, ChevronDown, ChevronUp,
-  MapPin, Phone, Mail, ShoppingCart, User, CreditCard
+  MapPin, Phone, ShoppingCart, User, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import emailjs from '@emailjs/browser';
@@ -43,7 +43,6 @@ const sendCustomerConfirmationEmail = async (order: Order) => {
       'template_ub1s3lc',
       {
         customer_name: order.customer_name,
-        customer_email: order.email,
         order_id: shortId,
         items: itemsSummary,
         total: order.total,
@@ -411,15 +410,8 @@ export function AdminDashboard() {
                                               <span>{order.phone}</span>
                                             </div>
                                             <div className="flex items-start gap-3">
-                                              <Mail className="w-4 h-4 mt-0.5 text-[#A78BFA]" />
-                                              <span>{order.email || 'No email provided'}</span>
-                                            </div>
-                                            <div className="flex items-start gap-3">
                                               <MapPin className="w-4 h-4 mt-0.5 text-[#A78BFA]" />
-                                              <span className="whitespace-normal">
-                                                {order.address?.street}, {order.address?.city},<br/>
-                                                {order.address?.state} - {order.address?.pincode}
-                                              </span>
+                                              <span className="whitespace-normal">{order.address}</span>
                                             </div>
                                           </div>
                                         </div>
@@ -433,8 +425,8 @@ export function AdminDashboard() {
                                             {order.items.map((item, i) => (
                                               <div key={i} className="flex justify-between items-center text-sm p-2.5 rounded-lg bg-[#FAF5FF] border border-[#A78BFA]/10">
                                                 <div className="flex items-center gap-3">
-                                                  <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center p-1 shadow-sm">
-                                                    <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                                                  <div className="w-8 h-8 bg-[#7C3AED]/10 rounded-md flex items-center justify-center">
+                                                    <ShoppingCart className="w-4 h-4 text-[#7C3AED]" />
                                                   </div>
                                                   <div>
                                                     <p className="font-bold text-[#4C1D95]">{item.name}</p>
