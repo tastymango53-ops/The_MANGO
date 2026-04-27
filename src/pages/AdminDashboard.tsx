@@ -588,20 +588,11 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                 <h3 className="font-black text-[#4C1D95] mb-4">New Mango</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <input placeholder="Name" value={newForm.name} onChange={e => setNewForm({...newForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
-                  <input placeholder="Price" type="number" value={newForm.price} onChange={e => setNewForm({...newForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
+                  <div className="relative">
+                    <input placeholder="Price per kg (₹)" type="number" value={newForm.price} onChange={e => setNewForm({...newForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm w-full" />
+                  </div>
                   <ImageUploader images={newImages} setImages={setNewImages} />
                   <input placeholder="Description" value={newForm.description} onChange={e => setNewForm({...newForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
-                  <div className="col-span-2 flex items-center gap-3">
-                    <span className="text-sm font-bold text-[#4C1D95]">Sell in:</span>
-                    <span className="text-sm">Kg</span>
-                    <button
-                      onClick={() => setNewForm({...newForm, unit: newForm.unit === 'kg' ? 'dozen' : 'kg'})}
-                      className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${newForm.unit === 'dozen' ? 'bg-[#7C3AED]' : 'bg-gray-300'}`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${newForm.unit === 'dozen' ? 'left-7' : 'left-1'}`} />
-                    </button>
-                    <span className="text-sm">Dozen</span>
-                  </div>
                 </div>
                 <div className="flex gap-2 mt-4">
                   <button onClick={saveNew} disabled={isSaving} className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 disabled:opacity-50">{isSaving ? 'Saving...' : 'Save'}</button>
@@ -638,20 +629,11 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
                   <div className="border-t border-gray-100 p-4 bg-[#FAF5FF]">
                     <div className="grid grid-cols-2 gap-3">
                       <input placeholder="Name" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
-                      <input placeholder="Price" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
+                      <div className="relative">
+                        <input placeholder="Price per kg (₹)" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm w-full" />
+                      </div>
                       <ImageUploader images={editImages} setImages={setEditImages} />
                       <input placeholder="Description" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
-                      <div className="col-span-2 flex items-center gap-3">
-                        <span className="text-sm font-bold text-[#4C1D95]">Sell in:</span>
-                        <span className="text-sm">Kg</span>
-                        <button
-                          onClick={() => setEditForm({...editForm, unit: editForm.unit === 'kg' ? 'dozen' : 'kg'})}
-                          className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${editForm.unit === 'dozen' ? 'bg-[#7C3AED]' : 'bg-gray-300'}`}
-                        >
-                          <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${editForm.unit === 'dozen' ? 'left-7' : 'left-1'}`} />
-                        </button>
-                        <span className="text-sm">Dozen</span>
-                      </div>
                     </div>
                     <div className="flex gap-2 mt-4">
                       <button onClick={() => saveEdit(product.id)} disabled={isSaving} className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 disabled:opacity-50">{isSaving ? 'Saving...' : 'Save'}</button>

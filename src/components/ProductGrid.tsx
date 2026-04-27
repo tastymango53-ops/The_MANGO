@@ -41,7 +41,7 @@ export const ProductGrid = () => {
             </div>
             <div className="flex flex-col flex-grow items-center text-center">
               <h3 className="text-3xl font-black text-dark mb-2">{product.name}</h3>
-              <span className="text-2xl font-black text-leaf-dark mb-4">₹{product.price}/kg</span>
+              <span className="text-2xl font-black text-leaf-dark mb-4">₹{product.price}<span className="text-base font-semibold text-dark/50">/kg</span></span>
               <p className="text-dark/70 font-medium leading-relaxed line-clamp-3">{product.description}</p>
               <div className="mt-6 w-full py-3 bg-mango text-white rounded-2xl font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                 View Details
