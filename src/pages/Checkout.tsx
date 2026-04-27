@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 export function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -84,6 +85,29 @@ export function Checkout() {
     }
   };
 
+  const sendAdminEmail = async (orderId: string) => {
+    try {
+      const shortId = orderId.slice(0, 8).toUpperCase();
+      const itemsSummary = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
+      await emailjs.send(
+        'service_odgq3zg',
+        'template_nfh73mo',
+        {
+          order_id: shortId,
+          customer_name: formData.name,
+          phone: formData.phone,
+          address: `${formData.address}, ${formData.pincode}`,
+          items: itemsSummary,
+          total: cartTotal,
+          payment_type: paymentType.toUpperCase(),
+        },
+        'B2JhHhac53YyZ7QXt'
+      );
+    } catch (err) {
+      console.error('Admin email failed:', err);
+    }
+  };
+
   const handleConfirmOrder = async () => {
     if (!formData.name || !formData.phone || !formData.address) {
       alert('Please fill in your name, phone number, and delivery address.');
@@ -122,6 +146,7 @@ export function Checkout() {
         const message = `🥭 <b>New Order!</b>\n\n<b>Order ID:</b> #${shortId}\n<b>Items:</b> ${itemsSummary}\n<b>Total:</b> ₹${cartTotal}\n<b>Name:</b> ${formData.name}\n<b>Phone:</b> ${formData.phone}\n<b>Address:</b> ${formData.address}, ${formData.pincode}\n<b>Payment:</b> ${paymentType.toUpperCase()}`;
 
         await sendTelegramNotification(message);
+        await sendAdminEmail(id);
       } else {
         alert('Could not save your order. Please try again.');
       }

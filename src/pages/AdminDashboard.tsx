@@ -9,6 +9,7 @@ import {
   MapPin, Phone, Mail, ShoppingCart, User, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence, animate } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@mangowala.com';
 
@@ -31,26 +32,27 @@ const ACTION_LABELS: Record<string, string> = {
   shipped: 'Dispatch',
 };
 
-const sendConfirmationEmail = async (order: Order) => {
+const sendCustomerConfirmationEmail = async (order: Order) => {
   try {
-    await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        service_id: 'YOUR_EMAILJS_SERVICE_ID',
-        template_id: 'YOUR_EMAILJS_TEMPLATE_ID',
-        user_id: 'YOUR_EMAILJS_PUBLIC_KEY',
-        template_params: {
-          to_name: order.customer_name,
-          to_email: order.email,
-          order_id: order.id?.slice(0, 8).toUpperCase(),
-          order_total: order.total,
-          order_status: 'Confirmed',
-        }
-      })
-    });
+    const shortId = order.id?.slice(0, 8).toUpperCase();
+    const itemsSummary = Array.isArray(order.items)
+      ? order.items.map((i: any) => `${i.name} x${i.quantity}`).join(', ')
+      : String(order.items);
+    await emailjs.send(
+      'service_odgq3zg',
+      'template_ub1s3lc',
+      {
+        customer_name: order.customer_name,
+        customer_email: order.email,
+        order_id: shortId,
+        items: itemsSummary,
+        total: order.total,
+        address: order.address,
+      },
+      'B2JhHhac53YyZ7QXt'
+    );
   } catch (err) {
-    console.error('Email failed:', err);
+    console.error('Customer email failed:', err);
   }
 };
 
@@ -144,7 +146,7 @@ export function AdminDashboard() {
 
     // Email Notification
     if (currentStatus === 'pending' || !currentStatus) {
-      sendConfirmationEmail(order);
+      await sendCustomerConfirmationEmail(order);
     }
   };
 
