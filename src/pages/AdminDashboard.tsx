@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase, getAllOrders, updateOrderStatus } from '../lib/supabase';
 import type { Order } from '../lib/supabase';
+import { useProducts } from '../context/ProductContext';
+import type { Product } from '../context/ProductContext';
 import {
   ShoppingBag, Truck, CheckCircle,
   Clock, Package, RefreshCw, Search, ChevronDown, ChevronUp,
-  MapPin, Phone, ShoppingCart, User, CreditCard
+  MapPin, Phone, ShoppingCart, User, CreditCard, Pencil, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import emailjs from '@emailjs/browser';
@@ -93,6 +95,15 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<'orders' | 'inventory'>('orders');
+
+  // ── Inventory state ──────────────────────────────────────────────────────────
+  const { products, addProduct, removeProduct, editProduct } = useProducts();
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', price: '', image: '', description: '', unit: 'kg' });
+  const [newForm, setNewForm] = useState({ name: '', price: '', image: '', description: '', unit: 'kg' });
 
   // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -130,6 +141,51 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
     // Email Notification
     if (currentStatus === 'pending' || !currentStatus) {
       await sendCustomerConfirmationEmail(order);
+    }
+  };
+
+  // ── Inventory functions ──────────────────────────────────────────────────────
+  const startEdit = (product: Product) => {
+    setEditingId(product.id);
+    setEditForm({
+      name: product.name,
+      price: String(product.price),
+      image: product.image,
+      description: product.description || '',
+      unit: (product as any).unit || 'kg',
+    });
+  };
+
+  const saveEdit = async (id: string) => {
+    if (!editForm.price) return;
+    setIsSaving(true);
+    try {
+      await editProduct(id, {
+        name: editForm.name,
+        price: Number(editForm.price),
+        image: editForm.image,
+        description: editForm.description,
+      });
+      setEditingId(null);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveNew = async () => {
+    if (!newForm.name || !newForm.price) return;
+    setIsSaving(true);
+    try {
+      await addProduct({
+        name: newForm.name,
+        price: Number(newForm.price),
+        image: newForm.image,
+        description: newForm.description,
+      });
+      setNewForm({ name: '', price: '', image: '', description: '', unit: 'kg' });
+      setIsAdding(false);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -237,7 +293,23 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
           </div>
         </div>
 
-        {orders.length === 0 ? (
+        {/* Tab switcher */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`px-6 py-2 rounded-xl font-bold cursor-pointer transition-colors ${activeTab === 'orders' ? 'bg-[#7C3AED] text-white' : 'bg-white text-[#7C3AED] border-2 border-[#7C3AED]'}`}
+          >
+            Orders
+          </button>
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`px-6 py-2 rounded-xl font-bold cursor-pointer transition-colors ${activeTab === 'inventory' ? 'bg-[#F97316] text-white' : 'bg-white text-[#F97316] border-2 border-[#F97316]'}`}
+          >
+            Inventory
+          </button>
+        </div>
+
+        {activeTab === 'orders' && orders.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -442,6 +514,96 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
               </div>
             </div>
           </motion.div>
+        ) : null}
+
+        {/* ── Inventory Tab ──────────────────────────────────────────────── */}
+        {activeTab === 'inventory' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-black text-[#4C1D95]">Mango Inventory</h2>
+              <button
+                onClick={() => setIsAdding(true)}
+                className="px-4 py-2 bg-[#F97316] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 transition-all"
+              >
+                + Add Mango
+              </button>
+            </div>
+
+            {isAdding && (
+              <div className="bg-white rounded-2xl p-6 shadow-md border border-[#7C3AED]/20 mb-4">
+                <h3 className="font-black text-[#4C1D95] mb-4">New Mango</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <input placeholder="Name" value={newForm.name} onChange={e => setNewForm({...newForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
+                  <input placeholder="Price" type="number" value={newForm.price} onChange={e => setNewForm({...newForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
+                  <input placeholder="Image URL" value={newForm.image} onChange={e => setNewForm({...newForm, image: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+                  <input placeholder="Description" value={newForm.description} onChange={e => setNewForm({...newForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+                  <div className="col-span-2 flex items-center gap-3">
+                    <span className="text-sm font-bold text-[#4C1D95]">Sell in:</span>
+                    <span className="text-sm">Kg</span>
+                    <button
+                      onClick={() => setNewForm({...newForm, unit: newForm.unit === 'kg' ? 'dozen' : 'kg'})}
+                      className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${newForm.unit === 'dozen' ? 'bg-[#7C3AED]' : 'bg-gray-300'}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${newForm.unit === 'dozen' ? 'left-7' : 'left-1'}`} />
+                    </button>
+                    <span className="text-sm">Dozen</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={saveNew} disabled={isSaving} className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 disabled:opacity-50">{isSaving ? 'Saving...' : 'Save'}</button>
+                  <button onClick={() => setIsAdding(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold cursor-pointer hover:opacity-90">Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {products.map(product => (
+              <div key={product.id} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-4">
+                    <img src={product.image} alt={product.name} className="w-16 h-16 rounded-xl object-contain bg-gray-50" />
+                    <div>
+                      <h3 className="font-black text-[#4C1D95]">{product.name}</h3>
+                      <p className="text-[#F97316] font-bold">₹{product.price}/{(product as any).unit || 'kg'}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => startEdit(product)} className="p-2 text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-xl cursor-pointer transition-colors">
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => removeProduct(product.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-xl cursor-pointer transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {editingId === product.id && (
+                  <div className="border-t border-gray-100 p-4 bg-[#FAF5FF]">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input placeholder="Name" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
+                      <input placeholder="Price" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="border rounded-xl px-3 py-2 text-sm" />
+                      <input placeholder="Image URL" value={editForm.image} onChange={e => setEditForm({...editForm, image: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+                      <input placeholder="Description" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="border rounded-xl px-3 py-2 text-sm col-span-2" />
+                      <div className="col-span-2 flex items-center gap-3">
+                        <span className="text-sm font-bold text-[#4C1D95]">Sell in:</span>
+                        <span className="text-sm">Kg</span>
+                        <button
+                          onClick={() => setEditForm({...editForm, unit: editForm.unit === 'kg' ? 'dozen' : 'kg'})}
+                          className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${editForm.unit === 'dozen' ? 'bg-[#7C3AED]' : 'bg-gray-300'}`}
+                        >
+                          <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${editForm.unit === 'dozen' ? 'left-7' : 'left-1'}`} />
+                        </button>
+                        <span className="text-sm">Dozen</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => saveEdit(product.id)} disabled={isSaving} className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-bold cursor-pointer hover:opacity-90 disabled:opacity-50">{isSaving ? 'Saving...' : 'Save'}</button>
+                      <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold cursor-pointer">Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
