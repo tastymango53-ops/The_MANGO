@@ -103,15 +103,20 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   // ── Auth guard ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isLoading && (!user || user.email !== ADMIN_EMAIL)) {
-      navigate('/login');
+      if (onClose) {
+        onClose(); // dismiss overlay and stay on current page
+      } else {
+        navigate('/login');
+      }
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, onClose]);
 
   // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (user?.email !== ADMIN_EMAIL) return;
+    if (isLoading) return; // wait for auth to resolve
+    if (user?.email !== ADMIN_EMAIL) { setLoading(false); return; }
     getAllOrders().then((data) => { setOrders(data); setLoading(false); });
-  }, [user]);
+  }, [user, isLoading]);
 
   // ── Realtime subscription ───────────────────────────────────────────────────
   useEffect(() => {
