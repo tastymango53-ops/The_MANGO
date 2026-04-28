@@ -247,7 +247,7 @@ export function OrdersPage() {
           return o;
         }));
         setSelectedOrder((prev) => {
-          if (prev?.id === updated.id) {
+          if (prev && prev.id === updated.id) {
             if (prev.status === updated.status) return prev;
             return updated;
           }
