@@ -5,7 +5,7 @@ export const Hero = () => {
       {/* Container */}
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-8 items-center">
         
-        {/* LEFT COLUMN - Features (01, 03) */}
+        {/* LEFT COLUMN - Features (01, 02) */}
         <div className="flex flex-col gap-8 lg:gap-14 order-2 lg:order-1 mt-12 lg:mt-0 lg:pr-12">
           
           <div className="glass-panel p-8 md:p-10 rounded-[2rem] bg-[#1a1525]/90 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
@@ -18,9 +18,9 @@ export const Hero = () => {
 
           <div className="glass-panel p-8 md:p-10 rounded-[2rem] bg-[#1a1525]/90 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B00] to-[#FFD700] opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            <span className="text-[#FF6B00] text-3xl font-bold mb-6 block">03</span>
+            <span className="text-[#FF6B00] text-3xl font-bold mb-6 block">02</span>
             <p className="text-white/90 font-medium leading-relaxed text-lg">
-              Multiple Revenue Streams Diverse monetization options for orchard farmers
+              Professional Infrastructure Enterprise-grade shipping with cold-chain benefits
             </p>
           </div>
 
@@ -52,7 +52,7 @@ export const Hero = () => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN - Headline & Features (02, 04) */}
+        {/* RIGHT COLUMN - Headline & Features (03, 04) */}
         <div className="flex flex-col gap-8 lg:gap-14 order-3 lg:order-3 mt-12 lg:mt-0 lg:pl-12">
           
           <div className="text-left mb-4 px-4 sm:px-0">
@@ -64,10 +64,10 @@ export const Hero = () => {
           </div>
 
           <div className="glass-panel p-8 md:p-10 rounded-[2rem] bg-[#1a1525]/90 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B00] to-[#FFD700] opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            <span className="text-[#FF6B00] text-3xl font-bold mb-6 block">02</span>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B00] to-[#FFD700] opacity-50 group-hover:opacity-100 transition-opacity"></div>
+            <span className="text-[#FF6B00] text-3xl font-bold mb-6 block">03</span>
             <p className="text-white/90 font-medium leading-relaxed text-lg">
-              Professional Infrastructure Enterprise-grade shipping with cold-chain benefits
+              Multiple Revenue Streams Diverse monetization options for orchard farmers
             </p>
           </div>
 
