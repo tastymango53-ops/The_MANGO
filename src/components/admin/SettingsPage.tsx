@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Bell, Shield, Zap, Mail, MessageCircle, Info } from 'lucide-react';
 
 export function SettingsPage() {

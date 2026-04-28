@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AdminLayout } from '../components/admin/AdminLayout';
 import type { AdminSection } from '../components/admin/AdminLayout';
 import { OrdersPage } from '../components/admin/OrdersPage';

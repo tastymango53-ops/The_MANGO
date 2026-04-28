@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useProducts } from '../../context/ProductContext';
 import type { Product } from '../../context/ProductContext';
 import { supabase } from '../../lib/supabase';
