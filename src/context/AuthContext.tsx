@@ -14,18 +14,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [user,    setUser]    = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
+    // ── Get initial session ─────────────────────────────────────────────────
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
 
-    // Listen for auth changes
+    // ── Live auth state listener ────────────────────────────────────────────
+    // CartContext independently listens to the same events to clear cart —
+    // so we don't need to couple the two contexts here.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -36,6 +38,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = async () => {
+    // Belt-and-suspenders: explicitly nuke cart storage before signing out.
+    // CartContext will also react to SIGNED_OUT event, so this is a safety net.
+    localStorage.removeItem('mangowala_cart');
+    localStorage.removeItem('mangowala_cart_owner');
     await supabase.auth.signOut();
   };
 
