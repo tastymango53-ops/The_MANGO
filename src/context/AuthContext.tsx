@@ -29,13 +29,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // CartContext independently listens to the same events to clear cart —
     // so we don't need to couple the two contexts here.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setSession(session);
-        setUser(session?.user ?? null);
-      } else if (event === 'SIGNED_OUT') {
-        setSession(null);
-        setUser(null);
-      }
+      setSession(session);
+      setUser(session?.user ?? null);
       setIsLoading(false);
     });
 

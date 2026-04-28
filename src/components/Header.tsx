@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ShoppingBag, User } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -10,6 +10,7 @@ export const Header = () => {
   const { cart, setIsCartOpen } = useCart();
   const { user, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
   const isLoggedIn = !!user;
 
   const cartItemsCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -19,6 +20,11 @@ export const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <header
@@ -34,30 +40,36 @@ export const Header = () => {
           </div>
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           <nav className="hidden sm:flex items-center gap-6 mr-2">
             <Link to="/orders" className={clsx("text-sm font-bold transition-colors", scrolled ? "text-mango-dark hover:text-mango" : "text-dark hover:text-mango-dark")}>
               Orders
             </Link>
-            {!isLoggedIn ? (
-              <Link to="/login" className={clsx("text-sm font-bold transition-colors", scrolled ? "text-mango-dark hover:text-mango" : "text-dark hover:text-mango-dark")}>
-                Login
-              </Link>
-            ) : (
-              <button onClick={signOut} className={clsx("text-sm font-bold transition-colors", scrolled ? "text-mango-dark hover:text-mango" : "text-dark hover:text-mango-dark")}>
-                Logout
-              </button>
-            )}
           </nav>
 
-          {isLoggedIn ? (
-            <button onClick={signOut} className="sm:hidden p-2 rounded-full text-dark hover:bg-mango-light/30">
-              <User className="w-6 h-6" />
+          {!isLoggedIn ? (
+            <button 
+              onClick={() => navigate('/login')}
+              className={clsx("text-sm font-bold transition-colors px-4 py-2 rounded-full", scrolled ? "bg-mango text-white hover:bg-mango-dark" : "bg-white/80 text-dark hover:bg-white")}
+            >
+              Login
             </button>
           ) : (
-            <Link to="/login" className="sm:hidden p-2 rounded-full text-dark hover:bg-mango-light/30">
-              <User className="w-6 h-6" />
-            </Link>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex flex-col items-end sm:items-start">
+                <span className="hidden sm:block text-sm text-gray-700 font-bold truncate max-w-[120px]">
+                  {user?.email}
+                </span>
+                <button 
+                  onClick={handleLogout}
+                  className="text-xs text-red-500 hover:text-red-600 underline">
+                  Logout
+                </button>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                {user?.email?.[0].toUpperCase() || <User className="w-4 h-4" />}
+              </div>
+            </div>
           )}
 
           <button
