@@ -221,6 +221,12 @@ export function OrdersPage() {
   const [dateFilter, setDateFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   // Load + realtime
   useEffect(() => {
@@ -233,8 +239,20 @@ export function OrdersPage() {
         setOrders((prev) => [p.new as Order, ...prev]))
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, (p) => {
         const updated = p.new as Order;
-        setOrders((prev) => prev.map((o) => o.id === updated.id ? updated : o));
-        setSelectedOrder((prev) => (prev?.id === updated.id ? updated : prev));
+        setOrders((prev) => prev.map((o) => {
+          if (o.id === updated.id) {
+            if (o.status === updated.status) return o; // Guard against double state update
+            return updated;
+          }
+          return o;
+        }));
+        setSelectedOrder((prev) => {
+          if (prev?.id === updated.id) {
+            if (prev.status === updated.status) return prev;
+            return updated;
+          }
+          return prev;
+        });
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -242,13 +260,34 @@ export function OrdersPage() {
 
   const handleStatusUpdate = async (order: Order, currentStatus: string) => {
     const next = NEXT_STATUS[currentStatus];
-    if (!next || !order.id) return;
+    if (!next || !order.id || updatingId === order.id) return;
+    
     setUpdatingId(order.id);
-    await updateOrderStatus(order.id, next);
+    const originalOrder = { ...order };
+    
+    // Optimistic UI Update
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: next } : o)));
+    if (selectedOrder?.id === order.id) {
+      setSelectedOrder((prev) => (prev ? { ...prev, status: next } : null));
+    }
+
+    const success = await updateOrderStatus(order.id, next);
+    
+    if (success) {
+      showToast(`Order marked as ${next}`, 'success');
+      const shortId = order.id.slice(0, 8).toUpperCase();
+      notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${next.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);
+      if (currentStatus === 'pending') sendEmail(order);
+    } else {
+      // Revert optimistic state on error
+      setOrders((prev) => prev.map((o) => (o.id === order.id ? originalOrder : o)));
+      if (selectedOrder?.id === order.id) {
+        setSelectedOrder(originalOrder);
+      }
+      showToast('Update failed, try again', 'error');
+    }
+    
     setUpdatingId(null);
-    const shortId = order.id.slice(0, 8).toUpperCase();
-    notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${next.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);
-    if (currentStatus === 'pending') sendEmail(order);
   };
 
   // Filtered orders
@@ -448,6 +487,16 @@ export function OrdersPage() {
           onStatusUpdate={handleStatusUpdate}
           updatingId={updatingId}
         />
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg font-bold text-sm flex items-center gap-2 animate-bounce ${
+          toast.type === 'success' ? 'bg-green-500 text-white shadow-green-500/30' : 'bg-red-500 text-white shadow-red-500/30'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <X className="w-4 h-4" />}
+          {toast.message}
+        </div>
       )}
     </div>
   );
