@@ -26,6 +26,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
       },
       animation: {
         'sway': 'sway 4s ease-in-out infinite',

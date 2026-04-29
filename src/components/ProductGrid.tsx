@@ -22,47 +22,57 @@ export const ProductGrid = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
         {products.map((product) => (
           <Link 
             key={product.id} 
             to={`/product/${product.id}`}
-            className="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 border-t-4 border-t-transparent hover:border-t-orange-400 cursor-pointer h-full"
+            className="group relative rounded-3xl overflow-hidden bg-[#FFFBF5] border border-orange-100 border-t-2 border-t-amber-400 shadow-[0_4px_24px_rgba(251,146,60,0.12)] hover:shadow-[0_8px_32px_rgba(251,146,60,0.25)] hover:-translate-y-2 transition-all duration-300 flex flex-col"
           >
-            {/* Freshness Badge */}
-            <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 z-10">
-              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> Fresh
-            </div>
-
-            {/* Price Badge */}
-            <div className="absolute top-3 right-3 bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md z-10">
-              ₹{product.price}/kg
-            </div>
-
-            {/* Full Bleed Image Container (approx 60% top) */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#FFF8F0] flex justify-center items-center">
+            {/* Full Bleed Image */}
+            <div 
+              className="relative h-56 w-full overflow-hidden"
+              style={{ boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)' }}
+            >
               <img
                 src={product.image}
                 alt={`Premium ${product.name} mango`}
                 loading="lazy"
-                className="object-contain w-[80%] h-[80%] group-hover:scale-105 transition-transform duration-500 drop-shadow-xl"
+                className="object-cover object-center w-full h-full group-hover:scale-[1.08] transition-transform duration-700 ease-out"
               />
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-amber-950/40 to-transparent" />
             </div>
 
-            {/* Content (Bottom half) */}
-            <div className="flex flex-col p-5 flex-grow text-left pb-6">
-              <h3 className="text-2xl font-black text-dark mb-1">{product.name}</h3>
-              <div className="mb-3">
-                <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full inline-block font-semibold">
-                  {product.name}
+            {/* Content Area */}
+            <div className="p-5 flex flex-col flex-1">
+              
+              {/* Price */}
+              <div className="mb-2">
+                <span className="text-2xl font-black text-orange-500">₹{product.price}</span>
+                <span className="text-sm text-gray-400 font-normal">/kg</span>
+              </div>
+              
+              {/* Product Name */}
+              <h3 className="font-serif text-xl font-bold text-gray-900">{product.name}</h3>
+              
+              {/* Decorative Divider */}
+              <div className="w-8 h-0.5 bg-orange-300 my-2" />
+              
+              {/* Description */}
+              <p className="text-sm text-gray-500 italic line-clamp-2">{product.description}</p>
+              
+              {/* Fresh Badge */}
+              <div className="mt-4 mb-4">
+                <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block animate-pulse" />
+                  Farm Fresh
                 </span>
               </div>
-              <p className="text-dark/70 font-medium leading-relaxed line-clamp-2 text-sm">{product.description}</p>
-            </div>
 
-            {/* Add to Cart CTA Sliding up */}
-            <div className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-center py-3 font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
-              View Details
+              {/* View Details Button */}
+              <div className="mt-auto w-full py-3 rounded-2xl font-semibold text-sm text-center bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-md shadow-orange-200 hover:shadow-lg hover:shadow-orange-300 hover:from-orange-500 hover:to-amber-600 transition-all duration-200">
+                View Details
+              </div>
             </div>
           </Link>
         ))}
