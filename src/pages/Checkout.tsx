@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, saveOrder, supabase } from '../lib/supabase';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import {
   ArrowLeft, CreditCard, QrCode, CheckCircle,
   Smartphone, MapPin, User, Phone, Truck
@@ -366,8 +366,8 @@ export function Checkout() {
               )}
               {showQR && (
                 <div className="flex flex-col items-center py-4">
-                  <div className="bg-white p-4 rounded-3xl shadow-inner border-4 border-[#FFD700]/30">
-                    <QRCodeSVG value={upiLink} size={200} level="M" />
+                  <div className="bg-white p-4 rounded-3xl shadow-inner border-4 border-[#FFD700]/30" style={{ backgroundColor: '#ffffff', colorScheme: 'light' }}>
+                    <QRCodeCanvas value={upiLink} size={200} level="M" />
                   </div>
                   <p className="text-sm text-center mt-3 text-[#1a1a1a]/60 font-bold">
                     Scan with <span className="text-[#FF6B00]">GPay / PhonePe / Paytm</span>
