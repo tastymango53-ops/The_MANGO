@@ -1,6 +1,6 @@
 export const Hero = () => {
   return (
-    <section className="relative w-full min-h-[90vh] py-24 flex items-center justify-center overflow-hidden bg-[#FFF8F0]">
+    <section className="relative w-full min-h-[90vh] py-24 flex items-center justify-center overflow-hidden bg-[#fff0e0]">
       
       {/* Container */}
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-8 items-center">
@@ -82,6 +82,9 @@ export const Hero = () => {
         </div>
 
       </div>
+      
+      {/* Orange Glow Bleed */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-300/20 rounded-full blur-3xl pointer-events-none" />
     </section>
   );
 };

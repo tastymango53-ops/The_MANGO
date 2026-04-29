@@ -35,7 +35,7 @@ export const FallingLeaves = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div className="absolute top-0 left-0 w-full h-[150vh] pointer-events-none z-0 overflow-hidden">
       {leaves.map((leaf) => (
         <div
           key={leaf.id}

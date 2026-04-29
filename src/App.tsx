@@ -7,7 +7,6 @@ import { AppRoutes } from './AppRoutes';
 import { CartDrawer } from './components/CartDrawer';
 import { Footer } from './components/Footer';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { FallingLeaves } from './components/FallingLeaves';
 import { PasswordPrompt } from './components/PasswordPrompt';
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
       <ProductProvider>
         <CartProvider>
           <div className="min-h-screen flex flex-col font-sans relative">
-            <FallingLeaves />
             <Header />
             <main className="flex-1 relative z-10">
               <AppRoutes />
