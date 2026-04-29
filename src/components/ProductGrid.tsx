@@ -22,30 +22,47 @@ export const ProductGrid = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
           <Link 
             key={product.id} 
             to={`/product/${product.id}`}
-            className="group flex flex-col cursor-pointer shrink-0 bg-white/80 backdrop-blur-sm border border-orange-100 rounded-2xl p-4 shadow-md hover:shadow-orange-200 hover:shadow-lg transition-all duration-300"
+            className="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 border-t-4 border-t-transparent hover:border-t-orange-400 cursor-pointer h-full"
           >
-            <div className="relative aspect-square overflow-hidden bg-white/40 rounded-3xl mb-6 flex justify-center items-center group-hover:bg-transparent transition-colors">
+            {/* Freshness Badge */}
+            <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 z-10">
+              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> Fresh
+            </div>
+
+            {/* Price Badge */}
+            <div className="absolute top-3 right-3 bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md z-10">
+              ₹{product.price}/kg
+            </div>
+
+            {/* Full Bleed Image Container (approx 60% top) */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#FFF8F0] flex justify-center items-center">
               <img
                 src={product.image}
                 alt={`Premium ${product.name} mango`}
-                width="400"
-                height="400"
                 loading="lazy"
-                className="object-contain w-3/4 h-3/4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 drop-shadow-2xl"
+                className="object-contain w-[80%] h-[80%] group-hover:scale-105 transition-transform duration-500 drop-shadow-xl"
               />
             </div>
-            <div className="flex flex-col flex-grow items-center text-center">
-              <h3 className="text-3xl font-black text-dark mb-2">{product.name}</h3>
-              <span className="text-2xl font-black text-leaf-dark mb-4">₹{product.price}<span className="text-base font-semibold text-dark/50">/kg</span></span>
-              <p className="text-dark/70 font-medium leading-relaxed line-clamp-3">{product.description}</p>
-              <div className="mt-6 w-full py-3 bg-mango text-white rounded-2xl font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                View Details
+
+            {/* Content (Bottom half) */}
+            <div className="flex flex-col p-5 flex-grow text-left pb-6">
+              <h3 className="text-2xl font-black text-dark mb-1">{product.name}</h3>
+              <div className="mb-3">
+                <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full inline-block font-semibold">
+                  {product.name}
+                </span>
               </div>
+              <p className="text-dark/70 font-medium leading-relaxed line-clamp-2 text-sm">{product.description}</p>
+            </div>
+
+            {/* Add to Cart CTA Sliding up */}
+            <div className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-center py-3 font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
+              View Details
             </div>
           </Link>
         ))}
