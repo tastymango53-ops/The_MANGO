@@ -103,7 +103,7 @@ export function Login() {
               <ShoppingBag className="w-8 h-8 text-mango-dark" />
             </div>
             <h1 className="text-3xl font-black text-dark mb-2">
-              {isLogin ? 'Welcome Back' : 'Join MangoWala'}
+              {isLogin ? 'Welcome Back' : 'Join RED ROSE MANGO'}
             </h1>
             <p className="text-dark/60 font-medium">
               {isLogin ? 'Login to track your delicious orders' : 'Create an account for faster checkout'}
@@ -229,7 +229,7 @@ export function Login() {
               className="text-dark/60 font-bold hover:text-mango-dark transition-colors"
             >
               {isLogin ? (
-                <>New to MangoWala? <span className="text-mango">Sign Up</span></>
+                <>New to RED ROSE MANGO? <span className="text-mango">Sign Up</span></>
               ) : (
                 <>Already have an account? <span className="text-mango">Login</span></>
               )}

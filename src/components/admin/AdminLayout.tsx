@@ -61,7 +61,7 @@ export function AdminLayout({ children, activeSection, onSectionChange, onClose 
           <span className="text-lg">🥭</span>
         </div>
         <div>
-          <p className="text-white font-black text-sm leading-none">MangoWala</p>
+          <p className="text-white font-black text-sm leading-none">RED ROSE MANGO</p>
           <p className="text-amber-400/70 text-xs font-medium mt-0.5">Admin Console</p>
         </div>
         {mobile && (
@@ -140,7 +140,7 @@ export function AdminLayout({ children, activeSection, onSectionChange, onClose 
           </button>
           <div className="flex items-center gap-2">
             <span className="text-base">🥭</span>
-            <span className="text-white font-black text-sm">MangoWala Admin</span>
+            <span className="text-white font-black text-sm">RED ROSE MANGO Admin</span>
           </div>
         </header>
 

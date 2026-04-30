@@ -9,7 +9,7 @@ export const Footer = ({ onOpenAdmin }: FooterProps) => {
     <footer className="bg-dark text-offwhite py-12 px-4 sm:px-6 md:px-12 border-t border-dark/10 relative">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
         <div className="text-center md:text-left">
-          <h2 className="text-2xl font-black text-mango mb-1">MangoWala</h2>
+          <h2 className="text-2xl font-black text-mango mb-1">RED ROSE MANGO</h2>
           <p className="text-offwhite/60">Premium D2C Mango Store.</p>
         </div>
 
@@ -50,7 +50,7 @@ export const Footer = ({ onOpenAdmin }: FooterProps) => {
         </div>
       </div>
       <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-offwhite/10 flex flex-col sm:flex-row justify-center items-center gap-4 relative text-offwhite/50 text-sm text-center">
-        <span>&copy; {new Date().getFullYear()} MangoWala. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} RED ROSE MANGO. All rights reserved.</span>
         
         {/* Admin Panel trigger */}
         {onOpenAdmin && (

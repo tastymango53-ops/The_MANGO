@@ -36,7 +36,7 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
           <div className={clsx("text-xl sm:text-2xl font-black tracking-tight", scrolled ? "text-mango-dark" : "text-dark")}>
-            MangoWala
+            RED ROSE MANGO
           </div>
         </Link>
 

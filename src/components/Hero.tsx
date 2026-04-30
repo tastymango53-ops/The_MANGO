@@ -59,7 +59,7 @@ export const Hero = () => {
             <h1 className="text-4xl xs:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight text-[#1a1525] leading-[1.1]">
               Why<br/>
               Choose<br/>
-              MangoWala?
+              RED ROSE MANGO?
             </h1>
           </div>
 

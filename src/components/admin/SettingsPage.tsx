@@ -76,7 +76,7 @@ export function SettingsPage() {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
         <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md shadow-amber-200 text-xl">🥭</div>
         <div>
-          <p className="font-black text-slate-800">MangoWala Admin Console</p>
+          <p className="font-black text-slate-800">RED ROSE MANGO Admin Console</p>
           <p className="text-xs text-slate-400 mt-0.5">Built with React + Tailwind + Supabase · v2.0</p>
         </div>
       </div>
