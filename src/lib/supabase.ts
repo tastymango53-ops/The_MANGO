@@ -53,6 +53,7 @@ export type Order = {
   payment_type: 'upi' | 'cod';
   status?: 'pending' | 'confirmed' | 'shipped' | 'delivered';
   created_at?: string;
+  upi_reference_id?: string;
 };
 
 export type ProductDB = {

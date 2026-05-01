@@ -28,6 +28,11 @@ export function Checkout() {
   const [paymentType, setPaymentType] = useState<'upi' | 'cod'>('upi');
   const [showQR, setShowQR] = useState(true);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [upiReferenceId, setUpiReferenceId] = useState('');
+  const [upiRefTouched, setUpiRefTouched] = useState(false);
+
+  const isUpiRefValid = /^\d{12}$/.test(upiReferenceId);
+  const isConfirmDisabled = isSubmitting || (paymentType === 'upi' && !isUpiRefValid);
 
   // Keep localStorage in sync with any form changes
   useEffect(() => { init('B2JhHhac53YyZ7QXt'); }, []);
@@ -121,13 +126,15 @@ export function Checkout() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const currentUserId = session?.user?.id ?? 'guest';
+      const currentUserEmail = session?.user?.email ?? undefined;
 
       const id = await saveOrder({
         customer_id: currentUserId,
-        email: user?.email,
+        email: currentUserEmail,
         customer_name: formData.name,
         phone: formData.phone,
         address: `${formData.address}, ${formData.pincode}`,
+        upi_reference_id: paymentType === 'upi' ? upiReferenceId : undefined,
         items: cart.map(item => ({
           id: item.id,
           name: item.name,
@@ -381,6 +388,37 @@ export function Checkout() {
                   </p>
                 </div>
               )}
+
+              {/* UPI Reference ID Input */}
+              <div className="mt-4 border-t-2 border-dashed border-[#FF6B00]/20 pt-4">
+                <label className="block text-sm font-black text-[#1a1a1a] mb-2">
+                  UPI Reference ID
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter 12-digit UPI reference number"
+                  value={upiReferenceId}
+                  onChange={(e) => {
+                    setUpiReferenceId(e.target.value);
+                    if (!upiRefTouched) setUpiRefTouched(true);
+                  }}
+                  className={`w-full px-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 transition-all outline-none font-bold text-[#1a1a1a] ${
+                    upiRefTouched && !isUpiRefValid
+                      ? 'border-red-500 focus:border-red-500 bg-red-50/50'
+                      : 'border-transparent focus:border-[#FF6B00] focus:bg-white'
+                  }`}
+                  maxLength={12}
+                />
+                {upiRefTouched && !isUpiRefValid ? (
+                  <p className="text-xs font-bold text-red-500 mt-2 flex items-center gap-1">
+                    Must be exactly 12 digits
+                  </p>
+                ) : (
+                  <p className="text-xs font-bold text-[#1a1a1a]/40 mt-2">
+                    Enter 12-digit UPI reference number
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -388,8 +426,12 @@ export function Checkout() {
         {/* Confirm Button */}
         <button
           onClick={handleConfirmOrder}
-          disabled={isSubmitting}
-          className="w-full py-5 bg-[#FF6B00] text-white rounded-3xl font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isConfirmDisabled}
+          className={`w-full py-5 rounded-3xl font-black text-xl shadow-2xl transition-all ${
+            isConfirmDisabled
+              ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+              : 'bg-[#FF6B00] text-white hover:scale-[1.02] active:scale-95'
+          }`}
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-3">
