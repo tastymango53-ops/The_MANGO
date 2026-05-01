@@ -28,6 +28,10 @@ export function Checkout() {
   const [paymentType, setPaymentType] = useState<'upi' | 'cod'>('upi');
   const [showQR, setShowQR] = useState(true);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [upiReferenceId, setUpiReferenceId] = useState('');
+  const [showUpiError, setShowUpiError] = useState(false);
+
+  const isUpiValid = /^\d{12}$/.test(upiReferenceId);
 
   // Keep localStorage in sync with any form changes
   useEffect(() => { init('B2JhHhac53YyZ7QXt'); }, []);
@@ -137,6 +141,7 @@ export function Checkout() {
         })),
         total: cartTotal,
         payment_type: paymentType,
+        upi_reference_id: upiReferenceId,
         status: 'pending',
       });
 
@@ -381,6 +386,32 @@ export function Checkout() {
                   </p>
                 </div>
               )}
+
+              {/* UPI Reference ID Input */}
+              <div className="mt-6 pt-6 border-t border-[#FF6B00]/10">
+                <label className="block text-sm font-black text-[#1a1a1a] mb-2">
+                  UPI Reference ID
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="12-digit Reference Number"
+                    value={upiReferenceId}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 12);
+                      setUpiReferenceId(val);
+                      if (!showUpiError) setShowUpiError(true);
+                    }}
+                    className={`w-full px-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 transition-all outline-none font-bold text-[#1a1a1a] ${
+                      showUpiError && !isUpiValid ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#FF6B00]'
+                    }`}
+                  />
+                </div>
+                <p className={`mt-2 text-xs font-bold ${showUpiError && !isUpiValid ? 'text-red-500' : 'text-[#1a1a1a]/40'}`}>
+                  {showUpiError && !isUpiValid ? 'Must be exactly 12 digits' : 'Enter 12-digit UPI reference number'}
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -388,7 +419,7 @@ export function Checkout() {
         {/* Confirm Button */}
         <button
           onClick={handleConfirmOrder}
-          disabled={isSubmitting}
+          disabled={isSubmitting || (paymentType === 'upi' && !isUpiValid)}
           className="w-full py-5 bg-[#FF6B00] text-white rounded-3xl font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
