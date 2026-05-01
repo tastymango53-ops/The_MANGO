@@ -16,7 +16,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
-
+  
   // ── Edit form for an existing product ────────────────────────────────────
   const [editForm, setEditForm] = useState<{
     name: string;

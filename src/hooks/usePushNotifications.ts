@@ -64,8 +64,8 @@ export function usePushNotifications(userId: string | undefined) {
           { user_id: userId, subscription: subscription.toJSON() },
           { onConflict: 'user_id' }
         );
-      } catch {
-        // Silently swallow all errors — never surface to the customer
+      } catch (err) {
+        console.error('Push notification error:', err);
       }
     };
 
