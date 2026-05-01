@@ -298,6 +298,47 @@ export function OrdersPage() {
       const shortId = order.id.slice(0, 8).toUpperCase();
       notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${newStatus.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);
       await sendStatusEmail(order, newStatus);
+
+      // Send push notification to customer
+      try {
+        const { data: subData } = await supabase
+          .from('push_subscriptions')
+          .select('subscription')
+          .eq('user_id', order.customer_id)
+          .single();
+
+        if (subData?.subscription) {
+          const messages: Record<string, { title: string; body: string }> = {
+            confirmed: {
+              title: '✅ Order Confirmed!',
+              body: 'Your Red Rose Mango order is confirmed! 🥭 We are preparing it now.',
+            },
+            shipped: {
+              title: '🚚 Order Shipped!',
+              body: 'Your order is on the way! Red Rose Mango is coming to you.',
+            },
+            delivered: {
+              title: '🎉 Order Delivered!',
+              body: 'Your order has been delivered! Enjoy your Red Rose Mangoes!',
+            },
+          };
+
+          const msg = messages[newStatus];
+          if (msg) {
+            await fetch('/api/send-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                subscription: subData.subscription,
+                title: msg.title,
+                body: msg.body,
+              }),
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Push notification failed:', err);
+      }
     } else {
       // Revert optimistic state on error
       setOrders((prev) => prev.map((o) => (o.id === order.id ? originalOrder : o)));
