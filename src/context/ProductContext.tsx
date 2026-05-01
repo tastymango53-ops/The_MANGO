@@ -35,6 +35,7 @@ const mapDBToProduct = (db: ProductDB): Product => ({
   originStory: db.origin_story,
   tasteNotes: db.taste_notes,
   weightOptions: db.weight_options,
+  stock: db.stock ?? 0,
 });
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -67,6 +68,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       origin_story: product.originStory,
       taste_notes: product.tasteNotes,
       weight_options: product.weightOptions,
+      stock: product.stock ?? 0,
     } as any);
 
     if (success) loadProducts();
@@ -88,6 +90,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (updatedProduct.originStory !== undefined)  fields.origin_story = updatedProduct.originStory;
     if (updatedProduct.tasteNotes !== undefined)   fields.taste_notes = updatedProduct.tasteNotes;
     if (updatedProduct.weightOptions !== undefined) fields.weight_options = updatedProduct.weightOptions;
+    if (updatedProduct.stock !== undefined)        fields.stock = Number(updatedProduct.stock);
 
     console.log('ProductContext.editProduct: updating id', id, 'with fields', fields);
     const success = await updateProduct(id, fields);

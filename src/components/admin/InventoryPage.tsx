@@ -204,9 +204,9 @@ function ProductFormModal({
   onSave, onClose,
 }: {
   title: string;
-  form: { name: string; price: string; description: string };
+  form: { name: string; price: string; description: string; stock: string };
   images: string[]; unit: 'kg' | 'dozen'; options: number[]; optionInput: string; isSaving: boolean;
-  onFormChange: (f: { name: string; price: string; description: string }) => void;
+  onFormChange: (f: { name: string; price: string; description: string; stock: string }) => void;
   onImagesChange: (imgs: string[]) => void;
   onUnitChange: (u: 'kg' | 'dozen') => void;
   onOptionsChange: (opts: number[]) => void;
@@ -254,6 +254,18 @@ function ProductFormModal({
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
                 />
               </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Stock (dozens)</label>
+                <input
+                  type="number" placeholder="e.g. 10" min="0"
+                  value={form.stock}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    onFormChange({ ...form, stock: isNaN(val) || val < 0 ? '0' : String(val) });
+                  }}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
+                />
+              </div>
             </div>
 
             <ImageUploader images={images} setImages={onImagesChange} />
@@ -289,14 +301,14 @@ export function InventoryPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Add form state
-  const [newForm, setNewForm] = useState({ name: '', price: '', description: '' });
+  const [newForm, setNewForm] = useState({ name: '', price: '', description: '', stock: '0' });
   const [newImages, setNewImages] = useState<string[]>([]);
   const [newUnit, setNewUnit] = useState<'kg' | 'dozen'>('kg');
   const [newOptions, setNewOptions] = useState<number[]>([1, 2, 5]);
   const [newOptionInput, setNewOptionInput] = useState('');
 
   // Edit form state
-  const [editForm, setEditForm] = useState({ name: '', price: '', description: '' });
+  const [editForm, setEditForm] = useState({ name: '', price: '', description: '', stock: '0' });
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editUnit, setEditUnit] = useState<'kg' | 'dozen'>('kg');
   const [editOptions, setEditOptions] = useState<number[]>([1, 2, 5]);
@@ -304,7 +316,7 @@ export function InventoryPage() {
 
   const startEdit = (product: Product) => {
     setEditingProduct(product);
-    setEditForm({ name: product.name, price: String(product.price), description: product.description || '' });
+    setEditForm({ name: product.name, price: String(product.price), description: product.description || '', stock: String(product.stock ?? 0) });
     setEditImages((product as any).images || (product.image ? [product.image] : []));
     const decoded = decodeOptions(product.weightOptions || []);
     setEditUnit(decoded.unit);
@@ -320,8 +332,9 @@ export function InventoryPage() {
         name: newForm.name, price: Number(newForm.price),
         image: newImages[0] || '', description: newForm.description,
         weightOptions: encodeOptions(newOptions, newUnit),
+        stock: Number(newForm.stock),
       });
-      setNewForm({ name: '', price: '', description: '' });
+      setNewForm({ name: '', price: '', description: '', stock: '0' });
       setNewImages([]); setNewUnit('kg'); setNewOptions([1, 2, 5]); setNewOptionInput('');
       setShowAddModal(false);
     } finally { setIsSaving(false); }
@@ -335,6 +348,7 @@ export function InventoryPage() {
         name: editForm.name, price: Number(editForm.price),
         image: editImages[0] || '', description: editForm.description,
         weightOptions: encodeOptions(editOptions, editUnit),
+        stock: Number(editForm.stock),
       });
       setEditingProduct(null);
     } finally { setIsSaving(false); }

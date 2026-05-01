@@ -47,9 +47,25 @@ export const ProductGrid = () => {
             <div className="p-5 flex flex-col flex-1">
               
               {/* Price */}
-              <div className="mb-2">
-                <span className="text-2xl font-black text-orange-500">₹{product.price}</span>
-                <span className="text-sm text-gray-400 font-normal">/kg</span>
+              <div className="mb-2 flex flex-col items-start gap-1">
+                <div>
+                  <span className="text-2xl font-black text-orange-500">₹{product.price}</span>
+                  <span className="text-sm text-gray-400 font-normal">/kg</span>
+                </div>
+                {/* Stock Badge */}
+                {(product.stock === undefined || product.stock === 0) ? (
+                  <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 border border-red-200">
+                    Out of Stock
+                  </span>
+                ) : product.stock <= 5 ? (
+                  <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
+                    Only {product.stock} dozen{product.stock > 1 ? 's' : ''} left!
+                  </span>
+                ) : (
+                  <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+                    {product.stock} dozens available
+                  </span>
+                )}
               </div>
               
               {/* Product Name */}

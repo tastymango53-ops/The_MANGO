@@ -65,6 +65,7 @@ export type ProductDB = {
   origin_story: string;
   taste_notes: string[];
   weight_options: number[];
+  stock?: number;
   created_at?: string;
 };
 
