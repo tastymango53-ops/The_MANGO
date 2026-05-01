@@ -197,7 +197,7 @@ function OrderSlideOver({ order, onClose, onStatusUpdate, updatingId }: {
                 <span className="font-semibold capitalize">{order.payment_type?.toUpperCase()} Payment</span>
               </div>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${order.payment_type === 'upi' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                {order.payment_type?.toUpperCase()}
+                {order.payment_type === 'upi' ? (order.upi_reference_id || 'UPI') : order.payment_type?.toUpperCase()}
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 border-t border-amber-100">
@@ -468,7 +468,7 @@ export function OrdersPage() {
                       <td className="px-5 py-4 whitespace-nowrap font-black text-slate-800">₹{order.total.toLocaleString()}</td>
                       <td className="px-5 py-4 whitespace-nowrap">
                         <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded-md ${order.payment_type === 'upi' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {order.payment_type}
+                          {order.payment_type === 'upi' ? (order.upi_reference_id || 'UPI') : order.payment_type}
                         </span>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap"><StatusBadge status={status} /></td>
