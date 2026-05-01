@@ -9,7 +9,6 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('push', function(event) {
   let title = 'Red Rose Mango 🥭';
   let body = 'You have a new notification';
-
   try {
     const data = event.data.json();
     title = data.title || title;
@@ -17,7 +16,6 @@ self.addEventListener('push', function(event) {
   } catch(e) {
     body = event.data.text();
   }
-
   event.waitUntil(
     self.registration.showNotification(title, {
       body: body,
@@ -29,7 +27,5 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  event.waitUntil(
-    clients.openWindow('/')
-  );
+  event.waitUntil(clients.openWindow('/'));
 });

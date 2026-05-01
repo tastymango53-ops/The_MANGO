@@ -62,7 +62,7 @@ export function usePushNotifications(userId: string | undefined) {
         // 5. Save to Supabase — ignore duplicate conflicts
         await supabase.from('push_subscriptions').upsert(
           { user_id: userId, subscription: subscription.toJSON() },
-          { onConflict: 'user_id' }
+          { ignoreDuplicates: true }
         );
       } catch (err) {
         console.error('Push notification error:', err);
