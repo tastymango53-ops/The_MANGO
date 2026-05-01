@@ -3,13 +3,13 @@ const { createClient } = require('@supabase/supabase-js');
 
 webpush.setVapidDetails(
   'mailto:mfurniturewala2007@gmail.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
 
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
 );
 
 const STATUS_MESSAGES = {
