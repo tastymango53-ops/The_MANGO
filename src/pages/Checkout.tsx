@@ -124,6 +124,7 @@ export function Checkout() {
 
       const id = await saveOrder({
         customer_id: currentUserId,
+        email: user?.email,
         customer_name: formData.name,
         phone: formData.phone,
         address: `${formData.address}, ${formData.pincode}`,

@@ -6,7 +6,7 @@ import {
   X, MapPin, Phone, ShoppingCart, User, CreditCard, Calendar,
   ChevronRight, ArrowRight,
 } from 'lucide-react';
-import emailjs from '@emailjs/browser';
+import { send } from '@emailjs/browser';
 import { animate } from 'framer-motion';
 
 // ── Config ──────────────────────────────────────────────────────────────────
@@ -32,15 +32,36 @@ const ACTION_COLORS: Record<string, string> = {
 const STATUS_TABS = ['All', 'Pending', 'Confirmed', 'Shipped', 'Delivered'];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-const sendEmail = async (order: Order) => {
+const sendStatusEmail = async (order: Order, newStatus: NonNullable<Order['status']>) => {
+  const isConfirmed = newStatus === 'confirmed';
+  const isDelivered = newStatus === 'delivered';
+
+  if (!isConfirmed && !isDelivered) return;
+  if (!order.email) return;
+
+  const templateParams = {
+    email: order.email,
+    customer_name: order.customer_name,
+    order_id: order.id,
+    total: order.total,
+    address: order.address,
+    status_title: isConfirmed 
+      ? 'Confirmed! 🎉' 
+      : 'Out for Delivery! 🛵',
+    status_message: isConfirmed
+      ? 'Great news! Your Red Rose Mango order has been confirmed and is being prepared.'
+      : 'Your mangoes are on the way! Our delivery partner will reach you soon.',
+    status_footer: isConfirmed
+      ? 'We will notify you again when your order is out for delivery.'
+      : 'Thank you for choosing Red Rose Mango! Enjoy your mangoes. 🥭',
+  };
+
   try {
-    const shortId = order.id?.slice(0, 8).toUpperCase();
-    const itemsSummary = order.items.map((i: any) => `${i.name} x${i.quantity}`).join(', ');
-    await emailjs.send('service_odgq3zg', 'template_ub1s3lc', {
-      customer_name: order.customer_name, order_id: shortId,
-      items: itemsSummary, total: order.total, address: order.address,
-    }, 'B2JhHhac53YyZ7QXt');
-  } catch (err) { console.error('Email failed:', err); }
+    await send('service_odgq3zg', 'template_31khk8w', templateParams, 'B2JhHhac53YyZ7QXt');
+    console.log('Email sent to', order.email);
+  } catch (err) {
+    console.error('EmailJS error:', err);
+  }
 };
 
 const notifyTelegram = async (message: string) => {
@@ -99,7 +120,7 @@ function StatusBadge({ status }: { status: string }) {
 // ── Slide-Over Panel ──────────────────────────────────────────────────────────
 function OrderSlideOver({ order, onClose, onStatusUpdate, updatingId }: {
   order: Order; onClose: () => void;
-  onStatusUpdate: (order: Order, status: string) => void;
+  onStatusUpdate: (order: Order, status: NonNullable<Order['status']>) => void;
   updatingId: string | null;
 }) {
   const status = order.status || 'pending';
@@ -196,7 +217,7 @@ function OrderSlideOver({ order, onClose, onStatusUpdate, updatingId }: {
         {next && (
           <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0">
             <button
-              onClick={() => onStatusUpdate(order, status)}
+              onClick={() => onStatusUpdate(order, next)}
               disabled={updatingId === order.id}
               className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl text-white font-bold text-sm transition-all duration-200 shadow-lg cursor-pointer ${actionColor} disabled:opacity-60 disabled:cursor-not-allowed`}
             >
@@ -258,26 +279,25 @@ export function OrdersPage() {
     return () => { supabase.removeChannel(ch); };
   }, []);
 
-  const handleStatusUpdate = async (order: Order, currentStatus: string) => {
-    const next = NEXT_STATUS[currentStatus];
-    if (!next || !order.id || updatingId === order.id) return;
+  const handleStatusUpdate = async (order: Order, newStatus: NonNullable<Order['status']>) => {
+    if (!newStatus || !order.id || updatingId === order.id) return;
     
     setUpdatingId(order.id);
     const originalOrder = { ...order };
     
     // Optimistic UI Update
-    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: next } : o)));
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: newStatus } : o)));
     if (selectedOrder?.id === order.id) {
-      setSelectedOrder((prev) => (prev ? { ...prev, status: next } : null));
+      setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null));
     }
 
-    const success = await updateOrderStatus(order.id, next);
+    const success = await updateOrderStatus(order.id, newStatus);
     
     if (success) {
-      showToast(`Order marked as ${next}`, 'success');
+      showToast(`Order marked as ${newStatus}`, 'success');
       const shortId = order.id.slice(0, 8).toUpperCase();
-      notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${next.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);
-      if (currentStatus === 'pending') sendEmail(order);
+      notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${newStatus.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);
+      await sendStatusEmail(order, newStatus);
     } else {
       // Revert optimistic state on error
       setOrders((prev) => prev.map((o) => (o.id === order.id ? originalOrder : o)));
@@ -458,7 +478,7 @@ export function OrdersPage() {
                       <td className="px-5 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         {next ? (
                           <button
-                            onClick={() => handleStatusUpdate(order, status)}
+                            onClick={() => handleStatusUpdate(order, next)}
                             disabled={isUpdating}
                             className={`flex items-center gap-1.5 px-3.5 py-1.5 text-white text-xs font-bold rounded-lg shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${actionColor}`}
                           >
