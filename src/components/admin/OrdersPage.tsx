@@ -37,7 +37,10 @@ const sendStatusEmail = async (order: Order, newStatus: NonNullable<Order['statu
   const isDelivered = newStatus === 'delivered';
 
   if (!isConfirmed && !isDelivered) return;
-  if (!order.email) return;
+  if (!order.email) {
+    console.warn(`Skipping email notification: No email address found for order ${order.id}`);
+    return;
+  }
 
   const templateParams = {
     email: order.email,
