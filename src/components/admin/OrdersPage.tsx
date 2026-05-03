@@ -541,19 +541,28 @@ export function OrdersPage() {
                         {order.created_at ? new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'}
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                        {next ? (
+                        <div className="flex items-center gap-2">
+                          {next ? (
+                            <button
+                              onClick={() => handleStatusUpdate(order, next)}
+                              disabled={isUpdating}
+                              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-white text-xs font-bold rounded-lg shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${actionColor}`}
+                            >
+                              {isUpdating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <><ArrowRight className="w-3.5 h-3.5" />{actionLabel}</>}
+                            </button>
+                          ) : (
+                            <span className="flex items-center gap-1.5 px-3.5 py-1.5 text-green-600 text-xs font-bold bg-green-50 rounded-lg border border-green-100">
+                              <CheckCircle className="w-3.5 h-3.5" />Done
+                            </span>
+                          )}
                           <button
-                            onClick={() => handleStatusUpdate(order, next)}
-                            disabled={isUpdating}
-                            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-white text-xs font-bold rounded-lg shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${actionColor}`}
+                            onClick={() => handleMoveToCredit(order)}
+                            className="flex items-center justify-center p-1.5 text-slate-400 bg-slate-100 hover:bg-amber-100 hover:text-amber-600 rounded-lg transition-colors cursor-pointer"
+                            title="Add to Credit"
                           >
-                            {isUpdating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <><ArrowRight className="w-3.5 h-3.5" />{actionLabel}</>}
+                            <BookOpen className="w-4 h-4" />
                           </button>
-                        ) : (
-                          <span className="flex items-center gap-1.5 px-3.5 py-1.5 text-green-600 text-xs font-bold bg-green-50 rounded-lg border border-green-100">
-                            <CheckCircle className="w-3.5 h-3.5" />Done
-                          </span>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   );
