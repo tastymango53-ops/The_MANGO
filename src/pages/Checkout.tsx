@@ -5,7 +5,7 @@ import { getProfile, saveOrder, supabase } from '../lib/supabase';
 import { QRCodeCanvas } from 'qrcode.react';
 import {
   ArrowLeft, CreditCard, QrCode, CheckCircle,
-  Smartphone, MapPin, User, Phone, Truck
+  Smartphone, MapPin, User, Phone, Truck, Mail
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -23,6 +23,7 @@ export function Checkout() {
     }
     return { name: '', phone: '', address: '', pincode: '' };
   });
+  const [customerEmail, setCustomerEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentType, setPaymentType] = useState<'upi' | 'cod'>('upi');
@@ -38,7 +39,13 @@ export function Checkout() {
 
   useEffect(() => {
     localStorage.setItem('mango_checkout_form', JSON.stringify(formData));
-  }, [formData]);
+    localStorage.setItem('mango_customer_email', customerEmail);
+  }, [formData, customerEmail]);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('mango_customer_email');
+    if (savedEmail) setCustomerEmail(savedEmail);
+  }, []);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -51,7 +58,10 @@ export function Checkout() {
           address: profile.address || '',
           pincode: profile.pincode || '',
         });
+        if (profile.email) setCustomerEmail(profile.email);
         setProfileLoaded(true);
+      } else if (user.email) {
+        setCustomerEmail(user.email);
       }
     };
     loadProfile();
@@ -106,6 +116,7 @@ export function Checkout() {
           items: itemsSummary,
           total: cartTotal,
           payment_type: paymentType.toUpperCase(),
+          customer_email: customerEmail,
         }
       );
       console.log('Admin email sent');
@@ -115,8 +126,8 @@ export function Checkout() {
   };
 
   const handleConfirmOrder = async () => {
-    if (!formData.name || !formData.phone || !formData.address) {
-      alert('Please fill in your name, phone number, and delivery address.');
+    if (!formData.name || !formData.phone || !formData.address || !customerEmail) {
+      alert('Please fill in your name, email, phone number, and delivery address.');
       return;
     }
 
@@ -130,6 +141,7 @@ export function Checkout() {
         customer_id: currentUserId,
         
         customer_name: formData.name,
+        email: customerEmail,
         phone: formData.phone,
         address: `${formData.address}, ${formData.pincode}`,
         items: cart.map(item => ({
@@ -268,6 +280,13 @@ export function Checkout() {
               <input type="text" placeholder="Full Name" required value={formData.name}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                 autoComplete="name"
+                className="w-full pl-12 pr-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 border-transparent focus:border-[#FF6B00] focus:bg-white transition-all outline-none font-bold text-[#1a1a1a]" />
+            </div>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a1a1a]/30" />
+              <input type="email" placeholder="Email Address" required value={customerEmail}
+                onChange={e => setCustomerEmail(e.target.value)}
+                autoComplete="email"
                 className="w-full pl-12 pr-4 py-3 bg-[#FFF8F0] rounded-2xl border-2 border-transparent focus:border-[#FF6B00] focus:bg-white transition-all outline-none font-bold text-[#1a1a1a]" />
             </div>
             <div className="relative">
