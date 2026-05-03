@@ -79,6 +79,17 @@ export type AppNotification = {
   created_at?: string;
 };
 
+export type CreditCustomer = {
+  id?: string;
+  customer_name: string;
+  phone: string;
+  order_id?: string | null;
+  amount: number;
+  note?: string | null;
+  status?: 'pending' | 'paid';
+  created_at?: string;
+};
+
 // ─── Profile functions ────────────────────────────────────────────────────────
 
 export async function getProfile(userId: string): Promise<Customer | null> {
@@ -230,6 +241,48 @@ export async function markNotificationAsRead(id: string): Promise<boolean> {
   const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id);
   if (error) {
     console.error('Error marking notification as read:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// ─── Credit Customer functions ──────────────────────────────────────────────────
+
+export async function getCreditCustomers(): Promise<CreditCustomer[]> {
+  const { data, error } = await supabase
+    .from('credit_customers')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching credit customers:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function addCreditCustomer(credit: Omit<CreditCustomer, 'id' | 'created_at'>): Promise<boolean> {
+  const { error } = await supabase.from('credit_customers').insert(credit);
+  if (error) {
+    console.error('Error adding credit customer:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function updateCreditStatus(id: string, status: 'pending' | 'paid'): Promise<boolean> {
+  const { error } = await supabase.from('credit_customers').update({ status }).eq('id', id);
+  if (error) {
+    console.error('Error updating credit status:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function deleteCreditCustomer(id: string): Promise<boolean> {
+  const { error } = await supabase.from('credit_customers').delete().eq('id', id);
+  if (error) {
+    console.error('Error deleting credit customer:', error.message);
     return false;
   }
   return true;

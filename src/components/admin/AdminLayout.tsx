@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
-  ShoppingBag, Package, Settings, Menu, X, LogOut, Zap,
+  ShoppingBag, Package, Settings, Menu, X, LogOut, Zap, BookOpen,
 } from 'lucide-react';
 
-export type AdminSection = 'orders' | 'inventory' | 'settings';
+export type AdminSection = 'orders' | 'inventory' | 'credit' | 'settings';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,6 +15,7 @@ interface AdminLayoutProps {
 const NAV_ITEMS: { id: AdminSection; label: string; icon: React.ElementType; badge?: number }[] = [
   { id: 'orders',    label: 'Orders',    icon: ShoppingBag },
   { id: 'inventory', label: 'Inventory', icon: Package },
+  { id: 'credit',    label: 'Credit',    icon: BookOpen },
   { id: 'settings',  label: 'Settings',  icon: Settings },
 ];
 

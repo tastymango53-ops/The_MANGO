@@ -4,6 +4,7 @@ import type { AdminSection } from '../components/admin/AdminLayout';
 import { OrdersPage } from '../components/admin/OrdersPage';
 import { InventoryPage } from '../components/admin/InventoryPage';
 import { SettingsPage } from '../components/admin/SettingsPage';
+import { CreditPage } from '../components/admin/CreditPage';
 
 export function AdminDashboard({ onClose }: { onClose?: () => void }) {
   const [section, setSection] = useState<AdminSection>('orders');
@@ -12,6 +13,7 @@ export function AdminDashboard({ onClose }: { onClose?: () => void }) {
     <AdminLayout activeSection={section} onSectionChange={setSection} onClose={onClose}>
       {section === 'orders'    && <OrdersPage />}
       {section === 'inventory' && <InventoryPage />}
+      {section === 'credit'    && <CreditPage />}
       {section === 'settings'  && <SettingsPage />}
     </AdminLayout>
   );
