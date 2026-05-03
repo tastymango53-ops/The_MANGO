@@ -304,9 +304,10 @@ export function OrdersPage() {
 
       // Create in-app notification for logged-in users
       if (order.customer_id && order.customer_id !== 'guest') {
-        let msg = `Your order #${shortId} has been ${newStatus} 🥭`;
-        if (newStatus === 'shipped') msg = `Your order #${shortId} is on the way! 🚚`;
-        if (newStatus === 'delivered') msg = `Your order #${shortId} has been delivered! 🎉`;
+        const firstName = order.customer_name ? order.customer_name.split(' ')[0] : 'Customer';
+        let msg = `Hi ${firstName}, your order has been confirmed! 🥭`;
+        if (newStatus === 'shipped') msg = `Hi ${firstName}, your order is on the way! 🚚`;
+        if (newStatus === 'delivered') msg = `Hi ${firstName}, your mangoes have arrived! 🎉`;
         
         await createNotification({
           user_id: order.customer_id,
