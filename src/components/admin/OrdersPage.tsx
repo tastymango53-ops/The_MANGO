@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase, getAllOrders, updateOrderStatus, createNotification, addCreditCustomer } from '../../lib/supabase';
+import { supabase, getAllOrders, updateOrderStatus, createNotification, addCreditCustomer, getCreditCustomers } from '../../lib/supabase';
 import type { Order } from '../../lib/supabase';
 import {
   Search, Clock, Package, Truck, CheckCircle, RefreshCw,
@@ -253,6 +253,7 @@ export function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [creditOrderIds, setCreditOrderIds] = useState<Set<string>>(new Set());
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -271,7 +272,8 @@ export function OrdersPage() {
       status: 'pending'
     });
     
-    if (success) {
+    if (success && order.id) {
+      setCreditOrderIds(prev => new Set([...prev, order.id as string]));
       showToast('Order added to Credit Tab', 'success');
     } else {
       showToast('Failed to add to Credit Tab', 'error');
@@ -280,7 +282,14 @@ export function OrdersPage() {
 
   // Load + realtime
   useEffect(() => {
-    getAllOrders().then((data) => { setOrders(data); setLoading(false); });
+    Promise.all([getAllOrders(), getCreditCustomers()]).then(([ordersData, creditData]) => {
+      setOrders(ordersData);
+      const pendingIds = new Set(
+        creditData.filter(c => c.status === 'pending' && c.order_id).map(c => c.order_id as string)
+      );
+      setCreditOrderIds(pendingIds);
+      setLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -305,7 +314,19 @@ export function OrdersPage() {
         });
       })
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+
+    const creditCh = supabase.channel('admin-credit-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'credit_customers' }, () => {
+        getCreditCustomers().then(data => {
+          setCreditOrderIds(new Set(data.filter(c => c.status === 'pending' && c.order_id).map(c => c.order_id as string)));
+        });
+      })
+      .subscribe();
+
+    return () => { 
+      supabase.removeChannel(ch); 
+      supabase.removeChannel(creditCh); 
+    };
   }, []);
 
   const handleStatusUpdate = async (order: Order, newStatus: NonNullable<Order['status']>) => {
@@ -507,11 +528,12 @@ export function OrdersPage() {
                   const actionLabel = ACTION_LABELS[status];
                   const actionColor = ACTION_COLORS[status];
                   const isUpdating = updatingId === order.id;
+                  const isCredit = creditOrderIds.has(order.id || '');
 
                   return (
                     <tr
                       key={order.id}
-                      className="hover:bg-amber-50/40 transition-colors duration-150 cursor-pointer group"
+                      className={`transition-colors duration-150 cursor-pointer group ${isCredit ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-amber-50/40'}`}
                       onClick={() => setSelectedOrder(order)}
                     >
                       <td className="px-5 py-4 whitespace-nowrap">
@@ -555,13 +577,15 @@ export function OrdersPage() {
                               <CheckCircle className="w-3.5 h-3.5" />Done
                             </span>
                           )}
-                          <button
-                            onClick={() => handleMoveToCredit(order)}
-                            className="flex items-center justify-center p-1.5 text-slate-400 bg-slate-100 hover:bg-amber-100 hover:text-amber-600 rounded-lg transition-colors cursor-pointer"
-                            title="Add to Credit"
-                          >
-                            <BookOpen className="w-4 h-4" />
-                          </button>
+                          {!isCredit && (
+                            <button
+                              onClick={() => handleMoveToCredit(order)}
+                              className="flex items-center justify-center p-1.5 text-slate-400 bg-slate-100 hover:bg-amber-100 hover:text-amber-600 rounded-lg transition-colors cursor-pointer"
+                              title="Add to Credit"
+                            >
+                              <BookOpen className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

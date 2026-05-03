@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCreditCustomers, addCreditCustomer, updateCreditStatus, deleteCreditCustomer } from '../../lib/supabase';
 import type { CreditCustomer } from '../../lib/supabase';
-import { Users, IndianRupee, Plus, Trash2, CheckCircle, Circle, Loader2 } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Users, IndianRupee, Plus, Trash2, CheckCircle, Loader2 } from 'lucide-react';
 
 export function CreditPage() {
   const [customers, setCustomers] = useState<CreditCustomer[]>([]);
@@ -53,16 +52,14 @@ export function CreditPage() {
     setIsSubmitting(false);
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'pending' ? 'paid' : 'pending';
-    
+  const handleMarkDone = async (id: string) => {
     // Optimistic UI update
-    setCustomers(prev => prev.map(c => c.id === id ? { ...c, status: newStatus as 'pending' | 'paid' } : c));
+    setCustomers(prev => prev.map(c => c.id === id ? { ...c, status: 'paid' } : c));
     
-    const success = await updateCreditStatus(id, newStatus as 'pending' | 'paid');
+    const success = await updateCreditStatus(id, 'paid');
     if (!success) {
       // Revert on failure
-      setCustomers(prev => prev.map(c => c.id === id ? { ...c, status: currentStatus as 'pending' | 'paid' } : c));
+      setCustomers(prev => prev.map(c => c.id === id ? { ...c, status: 'pending' } : c));
     }
   };
 
@@ -206,47 +203,42 @@ export function CreditPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {customers.length === 0 ? (
+              {pendingCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-5 py-8 text-center text-slate-400 text-sm font-medium">
-                    No credit entries found.
+                    No pending credit entries found.
                   </td>
                 </tr>
               ) : (
-                customers.map(c => {
-                  const isPaid = c.status === 'paid';
+                pendingCustomers.map(c => {
                   return (
-                    <tr key={c.id} className={clsx("transition-colors", isPaid ? "bg-slate-50/50" : "hover:bg-amber-50/30")}>
+                    <tr key={c.id} className="transition-colors hover:bg-amber-50/30">
                       <td className="px-5 py-4 whitespace-nowrap">
                         <button 
-                          onClick={() => c.id && handleToggleStatus(c.id, c.status || 'pending')}
-                          className={clsx(
-                            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer",
-                            isPaid ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-amber-100 text-amber-700 hover:bg-amber-200"
-                          )}
+                          onClick={() => c.id && handleMarkDone(c.id)}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer bg-green-100 text-green-700 hover:bg-green-200"
                         >
-                          {isPaid ? <CheckCircle className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
-                          {isPaid ? 'Paid' : 'Pending'}
+                          <CheckCircle className="w-3.5 h-3.5" /> Mark Done
                         </button>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <div className={clsx(isPaid && "line-through text-slate-400")}>
+                        <div>
                           <p className="font-bold text-slate-800 text-sm">{c.customer_name}</p>
                           <p className="text-xs text-slate-500">{c.phone}</p>
                         </div>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <span className={clsx("font-black text-sm", isPaid ? "text-slate-400 line-through" : "text-green-600")}>
+                        <span className="font-black text-sm text-green-600">
                           ₹{c.amount.toLocaleString()}
                         </span>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap text-sm text-slate-600">
-                        <span className={clsx(isPaid && "text-slate-400 line-through")}>
+                        <span>
                           {c.order_id ? `#${c.order_id.slice(0, 8).toUpperCase()}` : '-'}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-sm text-slate-600 max-w-[200px] truncate">
-                        <span className={clsx(isPaid && "text-slate-400 line-through")}>{c.note || '-'}</span>
+                        <span>{c.note || '-'}</span>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap text-xs text-slate-500">
                         {c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : '-'}
