@@ -69,6 +69,16 @@ export type ProductDB = {
   created_at?: string;
 };
 
+export type AppNotification = {
+  id?: string;
+  user_id: string;
+  order_id?: string;
+  message: string;
+  type: string;
+  read?: boolean;
+  created_at?: string;
+};
+
 // ─── Profile functions ────────────────────────────────────────────────────────
 
 export async function getProfile(userId: string): Promise<Customer | null> {
@@ -186,6 +196,40 @@ export async function deleteProduct(id: string): Promise<boolean> {
 
   if (error) {
     console.error('Error deleting product:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// ─── Notification functions ───────────────────────────────────────────────────
+
+export async function createNotification(notification: Omit<AppNotification, 'id' | 'created_at'>): Promise<boolean> {
+  const { error } = await supabase.from('notifications').insert(notification);
+  if (error) {
+    console.error('Error creating notification:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function getNotifications(userId: string): Promise<AppNotification[]> {
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching notifications:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function markNotificationAsRead(id: string): Promise<boolean> {
+  const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id);
+  if (error) {
+    console.error('Error marking notification as read:', error.message);
     return false;
   }
   return true;

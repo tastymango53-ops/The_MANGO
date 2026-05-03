@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase, getAllOrders, updateOrderStatus } from '../../lib/supabase';
+import { supabase, getAllOrders, updateOrderStatus, createNotification } from '../../lib/supabase';
 import type { Order } from '../../lib/supabase';
 import {
   Search, Clock, Package, Truck, CheckCircle, RefreshCw,
@@ -301,6 +301,20 @@ export function OrdersPage() {
       const shortId = order.id.slice(0, 8).toUpperCase();
       notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${newStatus.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);
       await sendStatusEmail(order, newStatus);
+
+      // Create in-app notification for logged-in users
+      if (order.customer_id && order.customer_id !== 'guest') {
+        let msg = `Your order #${shortId} has been ${newStatus} 🥭`;
+        if (newStatus === 'shipped') msg = `Your order #${shortId} is on the way! 🚚`;
+        if (newStatus === 'delivered') msg = `Your order #${shortId} has been delivered! 🎉`;
+        
+        await createNotification({
+          user_id: order.customer_id,
+          order_id: order.id,
+          message: msg,
+          type: 'order'
+        });
+      }
 
       // Send push notification to all subscribed customers via server API
       try {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CartProvider } from './CartContext';
 import { ProductProvider } from './context/ProductContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { Header } from './components/Header';
 import { AppRoutes } from './AppRoutes';
 import { CartDrawer } from './components/CartDrawer';
@@ -47,11 +48,13 @@ function AppInner() {
 function App() {
   return (
     <AuthProvider>
-      <ProductProvider>
-        <CartProvider>
-          <AppInner />
-        </CartProvider>
-      </ProductProvider>
+      <NotificationProvider>
+        <ProductProvider>
+          <CartProvider>
+            <AppInner />
+          </CartProvider>
+        </ProductProvider>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

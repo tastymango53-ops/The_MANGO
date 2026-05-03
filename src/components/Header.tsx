@@ -1,10 +1,90 @@
-import { useEffect, useState } from 'react';
-import { ShoppingBag, User } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { ShoppingBag, User, Bell } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { clsx } from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
+
+const NotificationDropdown = ({ scrolled }: { scrolled: boolean }) => {
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={clsx(
+          "relative p-3 rounded-full transition-all focus-visible:ring-2 touch-manipulation",
+          scrolled ? "bg-mango-light/30 text-mango-dark hover:bg-mango-light" : "bg-white/60 backdrop-blur-sm text-dark hover:bg-white shadow-sm"
+        )}
+        aria-label="Notifications"
+      >
+        <Bell className="w-6 h-6" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md animate-in zoom-in">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden z-50 animate-in slide-in-from-top-2">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <h3 className="font-bold text-slate-800">Notifications</h3>
+            {unreadCount > 0 && (
+              <button 
+                onClick={() => markAllAsRead()}
+                className="text-xs font-bold text-mango-dark hover:text-mango transition-colors"
+              >
+                Mark all as read
+              </button>
+            )}
+          </div>
+          <div className="max-h-[350px] overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-8 text-center text-slate-500 text-sm font-medium">
+                No notifications yet 🥭
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {notifications.map((n) => (
+                  <div 
+                    key={n.id}
+                    onClick={() => { if (!n.read && n.id) markAsRead(n.id); }}
+                    className={clsx(
+                      "p-4 transition-colors",
+                      n.read ? "bg-white" : "bg-green-50/50 hover:bg-green-50 cursor-pointer"
+                    )}
+                  >
+                    <p className={clsx("text-sm", n.read ? "text-slate-600" : "text-slate-800 font-medium")}>
+                      {n.message}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {n.created_at ? new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' }) : 'Just now'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const Header = () => {
   const { cart, setIsCartOpen } = useCart();
@@ -71,6 +151,8 @@ export const Header = () => {
               </div>
             </div>
           )}
+
+          {isLoggedIn && <NotificationDropdown scrolled={scrolled} />}
 
           <button
             onClick={() => setIsCartOpen(true)}
