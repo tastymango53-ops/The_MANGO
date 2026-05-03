@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase, getAllOrders, updateOrderStatus, createNotification } from '../../lib/supabase';
+import { supabase, getAllOrders, updateOrderStatus, createNotification, addCreditCustomer } from '../../lib/supabase';
 import type { Order } from '../../lib/supabase';
 import {
   Search, Clock, Package, Truck, CheckCircle, RefreshCw,
   X, MapPin, Phone, ShoppingCart, User, CreditCard, Calendar,
-  ChevronRight, ArrowRight,
+  ChevronRight, ArrowRight, BookOpen
 } from 'lucide-react';
 import { send } from '@emailjs/browser';
 import { animate } from 'framer-motion';
@@ -121,9 +121,10 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ── Slide-Over Panel ──────────────────────────────────────────────────────────
-function OrderSlideOver({ order, onClose, onStatusUpdate, updatingId }: {
+function OrderSlideOver({ order, onClose, onStatusUpdate, onMoveToCredit, updatingId }: {
   order: Order; onClose: () => void;
   onStatusUpdate: (order: Order, status: NonNullable<Order['status']>) => void;
+  onMoveToCredit: (order: Order) => void;
   updatingId: string | null;
 }) {
   const status = order.status || 'pending';
@@ -216,9 +217,9 @@ function OrderSlideOver({ order, onClose, onStatusUpdate, updatingId }: {
           </div>
         </div>
 
-        {/* Footer Action */}
-        {next && (
-          <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0">
+        {/* Footer Actions */}
+        <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 flex flex-col gap-3">
+          {next && (
             <button
               onClick={() => onStatusUpdate(order, next)}
               disabled={updatingId === order.id}
@@ -229,8 +230,14 @@ function OrderSlideOver({ order, onClose, onStatusUpdate, updatingId }: {
                 : <><ArrowRight className="w-4 h-4" />Mark as {actionLabel}</>
               }
             </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={() => { onMoveToCredit(order); onClose(); }}
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-bold text-sm transition-all duration-200 cursor-pointer"
+          >
+            <BookOpen className="w-4 h-4" /> Add to Credit
+          </button>
+        </div>
       </div>
     </>
   );
@@ -250,6 +257,25 @@ export function OrdersPage() {
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleMoveToCredit = async (order: Order) => {
+    if (!window.confirm(`Add order #${order.id?.slice(0,8).toUpperCase()} to Credit?`)) return;
+    
+    const success = await addCreditCustomer({
+      customer_name: order.customer_name,
+      phone: order.phone,
+      order_id: order.id,
+      amount: order.total,
+      note: 'Auto-added from orders list',
+      status: 'pending'
+    });
+    
+    if (success) {
+      showToast('Order added to Credit Tab', 'success');
+    } else {
+      showToast('Failed to add to Credit Tab', 'error');
+    }
   };
 
   // Load + realtime
@@ -544,6 +570,7 @@ export function OrdersPage() {
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
           onStatusUpdate={handleStatusUpdate}
+          onMoveToCredit={handleMoveToCredit}
           updatingId={updatingId}
         />
       )}
