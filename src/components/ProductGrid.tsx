@@ -27,7 +27,7 @@ export const ProductGrid = () => {
           <Link 
             key={product.id} 
             to={`/product/${product.id}`}
-            className="group relative rounded-3xl overflow-hidden bg-[#FFFBF5] border border-orange-100 border-t-2 border-t-amber-400 shadow-[0_4px_24px_rgba(251,146,60,0.12)] hover:shadow-[0_8px_32px_rgba(251,146,60,0.25)] hover:-translate-y-2 transition-all duration-300 flex flex-col"
+            className={`group relative rounded-3xl overflow-hidden bg-[#FFFBF5] border border-orange-100 border-t-2 border-t-amber-400 shadow-[0_4px_24px_rgba(251,146,60,0.12)] hover:shadow-[0_8px_32px_rgba(251,146,60,0.25)] hover:-translate-y-2 transition-all duration-300 flex flex-col ${product.stock === 0 ? 'opacity-75 grayscale-[0.5]' : ''}`}
           >
             {/* Full Bleed Image */}
             <div 
@@ -57,12 +57,12 @@ export const ProductGrid = () => {
                   <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 border border-red-200">
                     Out of Stock
                   </span>
-                ) : product.stock <= 5 ? (
-                  <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
-                    Only {product.stock} dozen{product.stock > 1 ? 's' : ''} left!
+                ) : (product.stock >= 1 && product.stock <= 3) ? (
+                  <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ color: '#F0A500', backgroundColor: '#F0A50015', borderColor: '#F0A50040', borderWidth: 1 }}>
+                    Only {product.stock} dozen{product.stock > 1 ? 's' : ''} left! 🥭
                   </span>
                 ) : (
-                  <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+                  <span className="text-xs text-gray-400 font-medium">
                     {product.stock} dozens available
                   </span>
                 )}

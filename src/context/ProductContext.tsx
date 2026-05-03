@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { mockProducts } from '../data';
-import { fetchProducts, upsertProduct, updateProduct, deleteProduct } from '../lib/supabase';
+import { fetchProducts, upsertProduct, updateProduct, deleteProduct, supabase } from '../lib/supabase';
 import type { ProductDB } from '../lib/supabase';
 
 export interface Product {
@@ -57,6 +57,21 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     loadProducts();
+
+    const channel = supabase.channel('public:products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+        if (payload.eventType === 'UPDATE') {
+          const updatedDbProduct = payload.new as ProductDB;
+          setProducts(prev => prev.map(p => p.id === updatedDbProduct.id ? { ...p, stock: updatedDbProduct.stock ?? 0 } : p));
+        } else if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+          loadProducts();
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const addProduct = async (product: Omit<Product, 'id'>) => {

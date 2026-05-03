@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase, getAllOrders, updateOrderStatus, createNotification, addCreditCustomer, getCreditCustomers } from '../../lib/supabase';
+import { supabase, getAllOrders, updateOrderStatus, createNotification, addCreditCustomer, getCreditCustomers, decrementProductStock } from '../../lib/supabase';
 import type { Order } from '../../lib/supabase';
 import {
   Search, Clock, Package, Truck, CheckCircle, RefreshCw,
@@ -344,6 +344,19 @@ export function OrdersPage() {
     const success = await updateOrderStatus(order.id, newStatus);
     
     if (success) {
+      if (newStatus === 'confirmed') {
+        // Auto-deduct stock for each item
+        for (const item of order.items) {
+          const actualQty = (item.selectedWeight ? Math.abs(item.selectedWeight) : 1) * item.quantity;
+          try {
+            await decrementProductStock(item.id, actualQty);
+            console.log(`Successfully deducted ${actualQty} from stock for product ${item.id}`);
+          } catch (err) {
+            console.error(`Failed to deduct stock for product ${item.id}:`, err);
+          }
+        }
+      }
+
       showToast(`Order marked as ${newStatus}`, 'success');
       const shortId = order.id.slice(0, 8).toUpperCase();
       notifyTelegram(`🥭 <b>Order Updated</b>\n#${shortId} → <b>${newStatus.toUpperCase()}</b>\nCustomer: ${order.customer_name}\nPhone: ${order.phone}`);

@@ -33,8 +33,10 @@ export function ProductDetail() {
   // Negative weightOptions = dozens; positive = kg
   const isDozenProduct = (product.weightOptions || []).length > 0 && product.weightOptions![0] < 0;
   const totalPrice = product.price * Math.abs(selectedWeight) * quantity;
+  const isOutOfStock = product.stock === 0;
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, selectedWeight, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -145,8 +147,24 @@ export function ProductDetail() {
                 
                 <div className="flex-1">
                   <h3 className="text-lg font-black text-dark mb-3 uppercase tracking-wider">Total Price</h3>
-                  <div className="text-3xl font-black text-mango-dark">
-                    ₹{totalPrice.toLocaleString()}
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="text-3xl font-black text-mango-dark">
+                      ₹{totalPrice.toLocaleString()}
+                    </div>
+                    {/* Stock Badge */}
+                    {(product.stock === undefined || product.stock === 0) ? (
+                      <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 border border-red-200">
+                        Out of Stock
+                      </span>
+                    ) : (product.stock >= 1 && product.stock <= 3) ? (
+                      <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ color: '#F0A500', backgroundColor: '#F0A50015', borderColor: '#F0A50040', borderWidth: 1 }}>
+                        Only {product.stock} dozen{product.stock > 1 ? 's' : ''} left! 🥭
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400 font-medium">
+                        {product.stock} dozens available
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -154,15 +172,19 @@ export function ProductDetail() {
               {/* Add to Cart */}
               <button
                 onClick={handleAddToCart}
-                disabled={added}
+                disabled={added || isOutOfStock}
                 className={clsx(
-                  "w-full py-5 rounded-2xl font-black text-xl flex items-center justify-center gap-3 transition-all shadow-xl active:scale-95",
-                  added 
-                    ? "bg-leaf text-white" 
-                    : "bg-mango hover:bg-mango-dark text-white"
+                  "w-full py-5 rounded-2xl font-black text-xl flex items-center justify-center gap-3 transition-all shadow-xl",
+                  isOutOfStock
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : added 
+                      ? "bg-leaf text-white active:scale-95" 
+                      : "bg-mango hover:bg-mango-dark text-white active:scale-95"
                 )}
               >
-                {added ? (
+                {isOutOfStock ? (
+                  <>Out of Stock</>
+                ) : added ? (
                   <>
                     <Check className="w-6 h-6" />
                     Added to Cart

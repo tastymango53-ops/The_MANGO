@@ -212,6 +212,19 @@ export async function deleteProduct(id: string): Promise<boolean> {
   return true;
 }
 
+export async function decrementProductStock(id: string, quantity: number): Promise<boolean> {
+  const { error } = await supabase.rpc('decrement_product_stock', {
+    p_product_id: id,
+    p_quantity: quantity
+  });
+
+  if (error) {
+    console.error('Error decrementing product stock:', error.message, error.details);
+    return false;
+  }
+  return true;
+}
+
 // ─── Notification functions ───────────────────────────────────────────────────
 
 export async function createNotification(notification: Omit<AppNotification, 'id' | 'created_at'>): Promise<boolean> {
