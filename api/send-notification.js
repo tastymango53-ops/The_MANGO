@@ -1,7 +1,7 @@
 console.log('FUNCTION STARTED');
-const webpush = require('web-push');
+import webpush from 'web-push';
 console.log('webpush loaded:', typeof webpush);
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 webpush.setVapidDetails(
   'mailto:mfurniturewala2007@gmail.com',
@@ -34,7 +34,7 @@ const STATUS_MESSAGES = {
   },
 };
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
