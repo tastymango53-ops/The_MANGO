@@ -1,4 +1,6 @@
+console.log('FUNCTION STARTED');
 const webpush = require('web-push');
+console.log('webpush loaded:', typeof webpush);
 const { createClient } = require('@supabase/supabase-js');
 
 webpush.setVapidDetails(
@@ -11,6 +13,11 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
+
+console.log('SUPABASE URL:', process.env.SUPABASE_URL ? 'SET' : 'MISSING');
+console.log('VAPID PUBLIC:', process.env.VAPID_PUBLIC_KEY ? 'SET' : 'MISSING');
+console.log('VAPID PRIVATE:', process.env.VAPID_PRIVATE_KEY ? 'SET' : 'MISSING');
+console.log('SERVICE KEY:', process.env.SUPABASE_SERVICE_KEY ? 'SET' : 'MISSING');
 
 const STATUS_MESSAGES = {
   confirmed: {
