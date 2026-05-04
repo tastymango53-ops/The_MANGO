@@ -386,6 +386,7 @@ export function OrdersPage() {
             orderId: order.id,
             customer_name: order.customer_name,
             newStatus,
+            user_id: order.customer_id ?? null,
           }),
         });
         if (pushRes.ok) {

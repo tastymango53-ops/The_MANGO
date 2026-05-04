@@ -43,11 +43,16 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    const { orderId, customer_name, newStatus } = req.body || {};
+    const { orderId, customer_name, newStatus, user_id } = req.body || {};
 
     if (!orderId || !customer_name || !newStatus) {
       console.error('send-notification: missing fields', req.body);
       return res.status(400).json({ error: 'orderId, customer_name and newStatus are required' });
+    }
+
+    if (!user_id) {
+      console.warn('send-notification: no user_id provided — skipping push to avoid broadcasting to all customers');
+      return res.status(200).json({ success: true, sent: 0, skipped: true });
     }
 
     const msgTemplate = STATUS_MESSAGES[newStatus];
@@ -61,10 +66,12 @@ export default async function handler(req, res) {
 
     console.log(`send-notification: status=${newStatus} orderId=${shortId} customer=${customer_name}`);
 
-    // Read ALL subscriptions from Supabase
+    // Read only the subscriptions belonging to this specific customer
+    console.log(`send-notification: looking up subscriptions for user_id=${user_id}`);
     const { data: rows, error: dbError } = await supabase
       .from('push_subscriptions')
-      .select('subscription');
+      .select('subscription')
+      .eq('user_id', user_id);
 
     if (dbError) {
       console.error('send-notification: Supabase error', dbError);
